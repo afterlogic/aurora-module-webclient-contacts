@@ -369,7 +369,14 @@ function CContactsView()
 	}, this);
 	
 	this.bRefreshContactList = false;
-	
+
+	const afterRemoveContactKeyHandler = () => {
+		this.onUpdateContactResponse({ Result: true });
+	};
+	this.oPgpKeyControlsView = ModulesManager.run('OpenPgpWebclient', 'getPgpKeyControlsView',
+			[afterRemoveContactKeyHandler]
+	);
+
 	App.broadcastEvent('%ModuleName%::ConstructView::after', {'Name': this.ViewConstructorName, 'View': this});
 }
 

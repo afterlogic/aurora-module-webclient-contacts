@@ -333,6 +333,9 @@
 					</div>
 					<div class="row hint" data-bind="visible: publicPgpKeyView">
 						<span data-bind="text: publicPgpKeyView"></span>
+						<!-- ko if: $root.oPgpKeyControlsView -->
+							<!-- ko template: { name: $root.oPgpKeyControlsView.ViewTemplate, data: $root.oPgpKeyControlsView} --><!-- /ko -->
+						<!-- /ko -->
 					</div>
 
 					<!-- ko if: showEncryptSignFlags -->
