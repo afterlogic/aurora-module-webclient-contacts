@@ -370,11 +370,19 @@ function CContactsView()
 	
 	this.bRefreshContactList = false;
 
-	const afterRemoveContactKeyHandler = () => {
-		this.onUpdateContactResponse({ Result: true });
+	const afterRemoveContactPgpKeyHandler = () => {
+		if (this.selectedContact() && this.selectedContact().edited()) {
+			this.selectedContact().publicPgpKey('');
+			const selectedContactListItem = this.collection().find(item => item.UUID() === this.selectedContact().uuid());
+			if (selectedContactListItem) {
+				selectedContactListItem.HasPgpPublicKey(false);
+			}
+		} else {
+			this.onUpdateContactResponse({ Result: true });
+		}
 	};
 	this.oPgpKeyControlsView = ModulesManager.run('OpenPgpWebclient', 'getPgpKeyControlsView',
-			[afterRemoveContactKeyHandler]
+			[afterRemoveContactPgpKeyHandler]
 	);
 
 	App.broadcastEvent('%ModuleName%::ConstructView::after', {'Name': this.ViewConstructorName, 'View': this});
@@ -1898,8 +1906,16 @@ CContactsView.prototype.onImportComplete = function (sFileUid, bResponseReceived
 
 CContactsView.prototype.addPublicPgpKey = function () {
 	const ImportKeyPopup = require('modules/OpenPgpWebclient/js/popups/ImportKeyPopup.js');
-	const onSuccessCallback = () => {
-		this.onUpdateContactResponse({ Result: true });
+	const onSuccessCallback = (armor) => {
+		if (this.selectedContact() && this.selectedContact().edited()) {
+			this.selectedContact().publicPgpKey(armor);
+			const selectedContactListItem = this.collection().find(item => item.UUID() === this.selectedContact().uuid());
+			if (selectedContactListItem) {
+				selectedContactListItem.HasPgpPublicKey(true);
+			}
+		} else {
+			this.onUpdateContactResponse({ Result: true });
+		}
 	};
 	Popups.showPopup(ImportKeyPopup, [{
 		allowOnlyPublicKeyForEmail: this.selectedItem().email(),
