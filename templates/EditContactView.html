@@ -324,18 +324,21 @@
 				<div class="fieldset" data-bind="css: {'collapsed': pgpSettingsCollapsed}, if: isOpenPgpEnabled">
 
 					<h2 class="subheading" data-bind="i18n: {'key': '%MODULENAME%/HEADING_PGP_SETTINGS'}, click: function () { pgpSettingsCollapsed(!pgpSettingsCollapsed()); }"></h2>
-
-					<div class="row textarea">
+					<div class="row" data-bind="visible: publicPgpKeyView">
 						<span class="label">
 							<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_PUBLIC_PGP_KEY'}"></span>:
 						</span>
-						<textarea class="value input" data-bind="value: publicPgpKey, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }"></textarea>
+						<span class="value">
+							<span data-bind="text: publicPgpKeyView"></span>
+							<!-- ko if: $root.oPgpKeyControlsView -->
+								<!-- ko template: { name: $root.oPgpKeyControlsView.ViewTemplate, data: $root.oPgpKeyControlsView} --><!-- /ko -->
+							<!-- /ko -->
+						</span>
 					</div>
-					<div class="row hint" data-bind="visible: publicPgpKeyView">
-						<span data-bind="text: publicPgpKeyView"></span>
-						<!-- ko if: $root.oPgpKeyControlsView -->
-							<!-- ko template: { name: $root.oPgpKeyControlsView.ViewTemplate, data: $root.oPgpKeyControlsView} --><!-- /ko -->
-						<!-- /ko -->
+					<div class="row buttons buttons_inline" data-bind="visible: !publicPgpKeyView()">
+						<span class="button contour_button" data-bind="click: $root.addPublicPgpKey.bind($root)">
+							<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_ADD_PUBLIC_PGP_KEY'}"></span>
+						</span>
 					</div>
 
 					<!-- ko if: showEncryptSignFlags -->

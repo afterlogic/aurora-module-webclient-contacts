@@ -1896,4 +1896,15 @@ CContactsView.prototype.onImportComplete = function (sFileUid, bResponseReceived
 	this.requestContactList();
 };
 
+CContactsView.prototype.addPublicPgpKey = function () {
+	const ImportKeyPopup = require('modules/OpenPgpWebclient/js/popups/ImportKeyPopup.js');
+	const onSuccessCallback = () => {
+		this.onUpdateContactResponse({ Result: true });
+	};
+	Popups.showPopup(ImportKeyPopup, [{
+		allowOnlyPublicKeyForEmail: this.selectedItem().email(),
+		onSuccessCallback
+	}]);
+};
+
 module.exports = CContactsView;
