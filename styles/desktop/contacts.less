@@ -42,11 +42,9 @@
 
 		.key {
 			.init-icon-font();
-			background: #f1f1f1;
-			border-radius: 10px 10px 10px 10px;
 			color: #6d6d6d;
 			float: right;
-			padding: 2px 8px;
+			margin: 1px 0px 0px 4px;
 
 			&:before {
 				display: inline-block;
@@ -56,6 +54,9 @@
 				line-height: 1;
 			}
 		}
+		&.selected .key {
+			color: #ffffff;
+		}
 
 		.data {
 			.box-sizing;
@@ -63,7 +64,7 @@
 			.group {
 				display: inline-block;
 				height: 20px;
-				margin-top: -1px;
+				margin-top: 1px;
 				vertical-align: bottom;
 				width: 20px;
 				
