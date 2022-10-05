@@ -321,7 +321,7 @@
 					</div>
 				</div>
 
-				<div class="fieldset" data-bind="css: {'collapsed': pgpSettingsCollapsed}, if: isOpenPgpEnabled && !isNew()">
+				<div class="fieldset" data-bind="css: {'collapsed': pgpSettingsCollapsed}, if: isOpenPgpEnabled">
 
 					<h2 class="subheading" data-bind="i18n: {'key': '%MODULENAME%/HEADING_PGP_SETTINGS'}, click: function () { pgpSettingsCollapsed(!pgpSettingsCollapsed()); }"></h2>
 					<div class="row" data-bind="visible: publicPgpKeyView">

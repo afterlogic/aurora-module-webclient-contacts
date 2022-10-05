@@ -1919,7 +1919,7 @@ CContactsView.prototype.addPublicPgpKey = function () {
 	};
 	Popups.showPopup(ImportKeyPopup, [{
 		allowOnlyPublicKeyForEmail: this.selectedItem().email(),
-		isOwnContact: this.selectedItem().itsMe(),
+		contactUUID: this.selectedItem().uuid(),
 		onSuccessCallback
 	}]);
 };
