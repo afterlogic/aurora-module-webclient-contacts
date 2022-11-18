@@ -1918,7 +1918,8 @@ CContactsView.prototype.addPublicPgpKey = function () {
 		}
 	};
 	Popups.showPopup(ImportKeyPopup, [{
-		allowOnlyPublicKeyForEmail: this.selectedItem().email(),
+		shouldAddToPersonalContact: true,
+		contactEmail: this.selectedItem().email(),
 		contactUUID: this.selectedItem().uuid(),
 		onSuccessCallback
 	}]);
