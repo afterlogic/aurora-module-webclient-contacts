@@ -1,5 +1,5 @@
 <div class="screen ContactsLayout" style="display: none;" data-bind="css: 'storage_' + selectedStorage()">
-	<div class="panels" data-bind="splitterFlex: {name: 'contact_list', sizes: [20, 20, 60]}">
+	<div class="panels" data-bind="splitterFlex: {storagePrefix: 'aurora_contacts_', sizes: [20, 20, 60]}">
 		<div class="panel left_panel groups_panel" data-splitter="groups">
 			<div class="panel_content">
 				<!-- ko template: { name: '%ModuleName%_Toolbar_GroupsView'} --><!-- /ko -->
