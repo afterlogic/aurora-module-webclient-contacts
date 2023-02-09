@@ -212,6 +212,19 @@ function CContactsView()
 			this.contactUidForRequest('');
 		}
 	}, this);
+
+	this.sortBy = ko.observable(Enums.ContactSortField.Name); // Email: 2, Frequency: 3, Name: 1
+	this.sortOrder =  ko.observable(Enums.SortOrder.Asc); // Asc: 0, Desc: 1
+
+	this.aSortList = [];
+	_.each(Enums.ContactSortField, function (iValue, sName, oItem) {
+		this.aSortList.push({
+			sText: TextUtils.i18n('%MODULENAME%/SORT_OPTION_' + sName.toUpperCase()),
+			sSortBy: iValue,
+			// sortOrder: ko.observable(Enums.SortOrder.Asc),
+			// selected: ko.observable(sName === this.sSortBy)
+		});
+	}.bind(this));
 	
 	this.isSearchFocused = ko.observable(false);
 	this.searchInput = ko.observable('');
@@ -392,6 +405,20 @@ _.extendOwn(CContactsView.prototype, CAbstractScreenView.prototype);
 
 CContactsView.prototype.ViewTemplate = '%ModuleName%_ContactsScreenView';
 CContactsView.prototype.ViewConstructorName = 'CContactsView';
+
+CContactsView.prototype.executeSort = function (sValue)
+{
+	const sCurrentSort = this.sortBy();
+	this.sortBy(sValue);
+
+	if (sCurrentSort === sValue) {
+		this.sortOrder(this.sortOrder() === Enums.SortOrder.Asc ? Enums.SortOrder.Desc : Enums.SortOrder.Asc); // Asc: 0, Desc: 1
+	} else {
+		this.sortOrder(Enums.SortOrder.Asc);
+	}
+
+	this.requestContactList();
+}
 
 CContactsView.prototype.getFormatDependentText = function (sLangConstantName)
 {
@@ -1068,7 +1095,9 @@ CContactsView.prototype.requestContactList = function ()
 	Ajax.send('GetContacts', {
 		'Offset': (this.currentPage() - 1) * Settings.ContactsPerPage,
 		'Limit': Settings.ContactsPerPage,
-		'SortField': Enums.ContactSortField.Name,
+		// 'SortField': Enums.ContactSortField.Name,
+		'SortField': this.sortBy(),
+		'SortOrder': this.sortOrder(),
 		'Search': this.search(),
 		'GroupUUID': sGroupUUID,
 		'Storage': sStorage
