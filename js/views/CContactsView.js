@@ -213,18 +213,27 @@ function CContactsView()
 		}
 	}, this);
 
-	this.sortBy = ko.observable(Enums.ContactSortField.Name); // Email: 2, Frequency: 3, Name: 1
-	this.sortOrder =  ko.observable(Enums.SortOrder.Asc); // Asc: 0, Desc: 1
+	this.bSortEnabled = Settings.ContactsSortBy && Settings.ContactsSortBy.Allow 
+		&& Settings.ContactsSortBy.DisplayOptions && Settings.ContactsSortBy.DisplayOptions.length > 0;
+	
+	// Had to set it here because in Setting.init not all Enums are defined
+	Settings.ContactsSortBy.DefaultSortBy = Enums.ContactSortField[Settings.ContactsSortBy.DefaultSortBy];
+	Settings.ContactsSortBy.DefaultSortOrder = Enums.SortOrder[Settings.ContactsSortBy.DefaultSortOrder];
+
+	this.sortBy = ko.observable(Settings.ContactsSortBy.DefaultSortBy);
+	this.sortOrder = ko.observable(Settings.ContactsSortBy.DefaultSortOrder);
 
 	this.aSortList = [];
-	_.each(Enums.ContactSortField, function (iValue, sName, oItem) {
-		this.aSortList.push({
-			sText: TextUtils.i18n('%MODULENAME%/SORT_OPTION_' + sName.toUpperCase()),
-			sSortBy: iValue,
-			// sortOrder: ko.observable(Enums.SortOrder.Asc),
-			// selected: ko.observable(sName === this.sSortBy)
-		});
-	}.bind(this));
+	if (this.bSortEnabled) {
+		_.each(Enums.ContactSortField, function (iValue, sName) {
+			if (Settings.ContactsSortBy.DisplayOptions.indexOf(sName) >= 0) {
+				this.aSortList.push({
+					sText: TextUtils.i18n('%MODULENAME%/SORT_OPTION_' + sName.toUpperCase()),
+					sSortBy: iValue
+				});
+			}
+		}.bind(this));
+	}
 	
 	this.isSearchFocused = ko.observable(false);
 	this.searchInput = ko.observable('');
@@ -414,7 +423,7 @@ CContactsView.prototype.executeSort = function (sValue)
 	if (sCurrentSort === sValue) {
 		this.sortOrder(this.sortOrder() === Enums.SortOrder.Asc ? Enums.SortOrder.Desc : Enums.SortOrder.Asc); // Asc: 0, Desc: 1
 	} else {
-		this.sortOrder(Enums.SortOrder.Asc);
+		this.sortOrder(Enums.SortOrder[Settings.ContactsSortBy.DefaultSortOrder]);
 	}
 
 	this.requestContactList();
@@ -1095,7 +1104,6 @@ CContactsView.prototype.requestContactList = function ()
 	Ajax.send('GetContacts', {
 		'Offset': (this.currentPage() - 1) * Settings.ContactsPerPage,
 		'Limit': Settings.ContactsPerPage,
-		// 'SortField': Enums.ContactSortField.Name,
 		'SortField': this.sortBy(),
 		'SortOrder': this.sortOrder(),
 		'Search': this.search(),

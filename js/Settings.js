@@ -16,6 +16,7 @@ module.exports = {
 	Storages: [],
 	DefaultStorage: 'personal',
 	AllowAddressBooksManagement: false,
+	ContactsSortBy: {},
 
 	ImportExportFormats: [],
 	SaveVcfServerModuleName: '',
@@ -52,14 +53,17 @@ module.exports = {
 				this.Storages.push('group');
 			}
 			this.AllowAddressBooksManagement = Types.pBool(oAppDataSection.AllowAddressBooksManagement, this.AllowAddressBooksManagement);
-
+			
 			this.ImportExportFormats = Types.pArray(oAppDataSection.ImportExportFormats, this.ImportExportFormats);
 			this.SaveVcfServerModuleName = Types.pString(oAppDataSection.SaveVcfServerModuleName, this.SaveVcfServerModuleName);
-
+			
 			this.EContactsPrimaryEmail = Types.pObject(oAppDataSection.PrimaryEmail);
 			this.EContactsPrimaryPhone = Types.pObject(oAppDataSection.PrimaryPhone);
 			this.EContactsPrimaryAddress = Types.pObject(oAppDataSection.PrimaryAddress);
 			this.EContactSortField = Types.pObject(oAppDataSection.SortField);
+			this.ContactsSortBy = this.getSortConfig(Types.pObject(oAppDataSection.ContactsSortBy));
+
+			console.log('ContactsSortBy', this.ContactsSortBy);
 		}
 	},
 	
@@ -71,5 +75,15 @@ module.exports = {
 	update: function (iContactsPerPage)
 	{
 		this.ContactsPerPage = iContactsPerPage;
+	},
+
+	getSortConfig: function (config)
+	{
+		return {
+			Allow: config.Allow ? true : false,
+			DisplayOptions: config.DisplayOptions || [],
+			DefaultSortBy: config.DefaultSortBy && config.Allow ? config.DefaultSortBy : 'Name',
+			DefaultSortOrder: config.DefaultSortOrder && config.Allow ? config.DefaultSortOrder : 'Desc'
+		};
 	}
 };
