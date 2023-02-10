@@ -1,8 +1,8 @@
-<span class="item sort" data-bind="dropdown: {control: false},
+<span class="item sort" data-bind="dropdown: {control: false}, css: {'sort_asc': sortOrder() === Enums.SortOrder.Asc, 'sort_desc': sortOrder() === Enums.SortOrder.Desc},
 		customTooltip: 'COREWEBCLIENT/ACTION_SORT_BY'">
 	<span class="icon"></span>
 	<span class="text" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_SORT_BY'}"></span>
-	<span class="icon arrow"></span>
+	<!-- <span class="icon arrow"></span> -->
 	<span class="dropdown">
 		<span class="dropdown_helper">
 			<span class="dropdown_arrow"><span></span></span>

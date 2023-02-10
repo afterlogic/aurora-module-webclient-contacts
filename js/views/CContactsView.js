@@ -423,7 +423,7 @@ CContactsView.prototype.executeSort = function (sValue)
 	if (sCurrentSort === sValue) {
 		this.sortOrder(this.sortOrder() === Enums.SortOrder.Asc ? Enums.SortOrder.Desc : Enums.SortOrder.Asc); // Asc: 0, Desc: 1
 	} else {
-		this.sortOrder(Enums.SortOrder[Settings.ContactsSortBy.DefaultSortOrder]);
+		this.sortOrder(Settings.ContactsSortBy.DefaultSortOrder);
 	}
 
 	this.requestContactList();

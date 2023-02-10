@@ -62,8 +62,6 @@ module.exports = {
 			this.EContactsPrimaryAddress = Types.pObject(oAppDataSection.PrimaryAddress);
 			this.EContactSortField = Types.pObject(oAppDataSection.SortField);
 			this.ContactsSortBy = this.getSortConfig(Types.pObject(oAppDataSection.ContactsSortBy));
-
-			console.log('ContactsSortBy', this.ContactsSortBy);
 		}
 	},
 	
