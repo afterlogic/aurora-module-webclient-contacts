@@ -80,8 +80,12 @@ module.exports = {
 		return {
 			Allow: config.Allow ? true : false,
 			DisplayOptions: config.DisplayOptions || [],
-			DefaultSortBy: config.DefaultSortBy && config.Allow ? config.DefaultSortBy : 'Name',
-			DefaultSortOrder: config.DefaultSortOrder && config.Allow ? config.DefaultSortOrder : 'Desc'
+			DefaultSortBy: config.Allow ?
+				Types.pEnum(Enums.ContactSortField[config.DefaultSortBy], Enums.ContactSortField, Enums.ContactSortField.Name) :
+				Enums.ContactSortField.Filename,
+			DefaultSortOrder: config.Allow ?
+				Types.pEnum(Enums.SortOrder[config.DefaultSortOrder], Enums.SortOrder, Enums.SortOrder.Desc) :
+				Enums.SortOrder.Desc
 		};
 	}
 };

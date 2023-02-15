@@ -215,10 +215,6 @@ function CContactsView()
 
 	this.bSortEnabled = Settings.ContactsSortBy && Settings.ContactsSortBy.Allow 
 		&& Settings.ContactsSortBy.DisplayOptions && Settings.ContactsSortBy.DisplayOptions.length > 0;
-	
-	// Had to set it here because in Setting.init not all Enums are defined
-	Settings.ContactsSortBy.DefaultSortBy = Enums.ContactSortField[Settings.ContactsSortBy.DefaultSortBy];
-	Settings.ContactsSortBy.DefaultSortOrder = Enums.SortOrder[Settings.ContactsSortBy.DefaultSortOrder];
 
 	this.sortBy = ko.observable(Settings.ContactsSortBy.DefaultSortBy);
 	this.sortOrder = ko.observable(Settings.ContactsSortBy.DefaultSortOrder);
