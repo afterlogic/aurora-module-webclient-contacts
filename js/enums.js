@@ -2,16 +2,11 @@
 
 var
 	_ = require('underscore'),
-	
-	UserSettings = require('modules/%ModuleName%/js/Settings.js'),
-	
+
+	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
+
 	Enums = {}
 ;
-
-Enums.ContactsPrimaryEmail = UserSettings.EContactsPrimaryEmail;
-Enums.ContactsPrimaryPhone = UserSettings.EContactsPrimaryPhone;
-Enums.ContactsPrimaryAddress = UserSettings.EContactsPrimaryAddress;
-Enums.ContactSortField = UserSettings.EContactSortField;
 
 /**
  * @enum {number}
@@ -28,3 +23,13 @@ if (typeof window.Enums === 'undefined')
 }
 
 _.extendOwn(window.Enums, Enums);
+
+module.exports = {
+	init(appData, serverModuleName) {
+		const appDataSection = appData[serverModuleName];
+		window.Enums.ContactsPrimaryEmail = Types.pObject(appDataSection && appDataSection.PrimaryEmail);
+		window.Enums.ContactsPrimaryPhone = Types.pObject(appDataSection && appDataSection.PrimaryPhone);
+		window.Enums.ContactsPrimaryAddress = Types.pObject(appDataSection && appDataSection.PrimaryAddress);
+		window.Enums.ContactSortField = Types.pObject(appDataSection && appDataSection.SortField);
+	}
+};

@@ -10,6 +10,7 @@ module.exports = function (oAppData) {
 		ModulesManager = require('%PathToCoreWebclientModule%/js/ModulesManager.js'),
 		
 		ContactsCache = require('modules/%ModuleName%/js/Cache.js'),
+		EnumsDeclarator = require('modules/%ModuleName%/js/enums.js'),
 		Settings = require('modules/%ModuleName%/js/Settings.js'),
 		
 		SuggestionsAutocomplete = require('modules/%ModuleName%/js/SuggestionsAutocomplete.js'),
@@ -53,15 +54,14 @@ module.exports = function (oAppData) {
 		}
 	;
 
+	EnumsDeclarator.init(oAppData, Settings.ServerModuleName);
 	Settings.init(oAppData);
-	
+
 	if (!ModulesManager.isModuleAvailable(Settings.ServerModuleName))
 	{
 		return null;
 	}
-	
-	require('modules/%ModuleName%/js/enums.js');
-	
+
 	if (App.isUserNormalOrTenant())
 	{
 		if (App.isMobile())

@@ -21,11 +21,6 @@ module.exports = {
 	ImportExportFormats: [],
 	SaveVcfServerModuleName: '',
 
-	EContactsPrimaryEmail: {},
-	EContactsPrimaryPhone: {},
-	EContactsPrimaryAddress: {},
-	EContactSortField: {},
-	
 	/**
 	 * Initializes settings from AppData object sections.
 	 * 
@@ -56,11 +51,7 @@ module.exports = {
 			
 			this.ImportExportFormats = Types.pArray(oAppDataSection.ImportExportFormats, this.ImportExportFormats);
 			this.SaveVcfServerModuleName = Types.pString(oAppDataSection.SaveVcfServerModuleName, this.SaveVcfServerModuleName);
-			
-			this.EContactsPrimaryEmail = Types.pObject(oAppDataSection.PrimaryEmail);
-			this.EContactsPrimaryPhone = Types.pObject(oAppDataSection.PrimaryPhone);
-			this.EContactsPrimaryAddress = Types.pObject(oAppDataSection.PrimaryAddress);
-			this.EContactSortField = Types.pObject(oAppDataSection.SortField);
+
 			this.ContactsSortBy = this.getSortConfig(Types.pObject(oAppDataSection.ContactsSortBy));
 		}
 	},
@@ -77,15 +68,20 @@ module.exports = {
 
 	getSortConfig: function (config)
 	{
-		return {
-			Allow: config.Allow ? true : false,
-			DisplayOptions: config.DisplayOptions || [],
-			DefaultSortBy: config.Allow ?
-				Types.pEnum(Enums.ContactSortField[config.DefaultSortBy], Enums.ContactSortField, Enums.ContactSortField.Name) :
-				Enums.ContactSortField.Filename,
-			DefaultSortOrder: config.Allow ?
-				Types.pEnum(Enums.SortOrder[config.DefaultSortOrder], Enums.SortOrder, Enums.SortOrder.Desc) :
-				Enums.SortOrder.Desc
-		};
+		if (config.Allow) {
+			return {
+				Allow: true,
+				DisplayOptions: config.DisplayOptions || [],
+				DefaultSortBy: Types.pEnum(Enums.ContactSortField[config.DefaultSortBy], Enums.ContactSortField, Enums.ContactSortField.Name),
+				DefaultSortOrder: Types.pEnum(Enums.SortOrder[config.DefaultSortOrder], Enums.SortOrder, Enums.SortOrder.Desc)
+			};
+		} else {
+			return {
+				Allow: false,
+				DisplayOptions: config.DisplayOptions || [],
+				DefaultSortBy: Enums.ContactSortField.Filename,
+				DefaultSortOrder: Enums.SortOrder.Desc
+			};
+		}
 	}
 };
