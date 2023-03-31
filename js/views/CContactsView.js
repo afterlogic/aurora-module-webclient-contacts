@@ -829,8 +829,39 @@ CContactsView.prototype.executeExport = function (sFormat)
 		'ContactUUIDs': aContactUUIDs
 	}, function (oResponse) {
 		var oBlob = new Blob([oResponse.ResponseText], {'type': 'text/plain;charset=utf-8'});
-		FileSaver.saveAs(oBlob, 'export.' + sFormat, true);
+		FileSaver.saveAs(oBlob, this.getStorageDisplayName(sStorage) + '.' + sFormat, true);
 	}, this, { Format: 'Raw' });
+};
+
+CContactsView.prototype.getStorageDisplayName = function (storage)
+{
+	var result = '';
+
+	switch(storage) {
+		case 'all':
+			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_ALL');
+			break;
+		case 'personal':
+			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_PERSONAL');
+			break;
+		case 'team':
+			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_TEAM');
+			break;
+		case 'shared':
+			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_SHARED');
+			break;
+	}
+
+	if (result == '') {
+		var abook = _.find(this.addressBooks(), function (oAddressBook) {
+			return oAddressBook.Id === storage;
+		});
+		if (abook) {
+			result = abook.DisplayName;
+		}
+	}
+
+	return result;
 };
 
 CContactsView.prototype.executeCancel = function ()
