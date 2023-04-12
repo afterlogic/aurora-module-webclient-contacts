@@ -813,7 +813,7 @@ CContactsView.prototype.executeImport = function ()
 CContactsView.prototype.executeExport = function (sFormat)
 {
 	var
-		aContactUUIDs = _.map(this.selector.listCheckedOrSelected(), function (oContact) {
+		aContactUUIDs = _.map(this.selector.listChecked(), function (oContact) {
 			return oContact.sUUID;
 		}),
 		sStorage = this.selectedStorage()
