@@ -87,6 +87,7 @@ function CContactsView()
 	this.isTeamStorageSelected = ko.observable(false);
 	this.isNotTeamStorageSelected = ko.observable(false);
 	this.disableDropToPersonal = ko.observable(false);
+	this.disableDropToSharedWithAll = ko.observable(false);
 	this.selectedStorageValue = ko.observable('');
 	this.selectedStorage = ko.computed({
 		'read': function () {
@@ -112,14 +113,11 @@ function CContactsView()
 				this.isTeamStorageSelected(this.selectedStorageValue() === 'team');
 				this.isNotTeamStorageSelected(this.selectedStorageValue() !== 'team');
 				this.disableDropToPersonal(this.selectedStorageValue() !== 'shared');
+				this.disableDropToSharedWithAll(this.selectedStorageValue() !== 'personal');
 			}
 		},
 		'owner': this
 	});
-	
-	this.allowDrag = ko.computed(function () {
-		return !this.isAddressBookSelected();
-	}, this);
 	
 	this.addressBooks = ko.observable(Settings.AddressBooks);
 	App.subscribeEvent('ReceiveAjaxResponse::after', function (oParams) {
