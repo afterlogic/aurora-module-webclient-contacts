@@ -11,9 +11,9 @@
 		<div class="items_list simple_list" data-bind="visible: addressBooks().length > 0">
 			<div data-bind="foreach: addressBooks">
 				<div class="item account">
-					<span class="link fetcher" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_DELETE'},
+					<span class="link delete" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_DELETE'},
 							click: function () {$parent.deleteAddressBook(EntityId, DisplayName);}"></span>
-					<span class="link fetcher" data-bind="i18n: {'key': '%MODULENAME%/ACTION_EDIT'},
+					<span class="link edit" data-bind="i18n: {'key': '%MODULENAME%/ACTION_EDIT'},
 							click: function () {$parent.editAddressBook(EntityId, DisplayName);}"></span>
 					<span class="title" data-bind="text: DisplayName"></span>
 				</div>
