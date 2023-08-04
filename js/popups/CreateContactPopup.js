@@ -2,7 +2,6 @@
 
 var
 	_ = require('underscore'),
-	$ = require('jquery'),
 	ko = require('knockout'),
 	
 	TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js'),
@@ -63,7 +62,7 @@ CCreateContactPopup.prototype.onOpen = function (sName, sEmail, fCallback)
 		this.facebook('');
 	}
 
-	this.fCallback = $.isFunction(fCallback) ? fCallback : function () {};
+	this.fCallback = _.isFunction(fCallback) ? fCallback : function () {};
 };
 
 CCreateContactPopup.prototype.onSaveClick = function ()

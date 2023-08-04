@@ -1,7 +1,6 @@
 'use strict';
 
 var
-	$ = require('jquery'),
 	_ = require('underscore'),
 	
 	Ajax = require('modules/%ModuleName%/js/Ajax.js'),
@@ -56,7 +55,7 @@ CContactsCache.prototype.getContactsByEmails = function (aEmails, fResponseHandl
 		}
 	}, this));
 	
-	if ($.isFunction(fResponseHandler))
+	if (_.isFunction(fResponseHandler))
 	{
 		fResponseHandler(aContacts);
 	}
@@ -121,7 +120,7 @@ CContactsCache.prototype.onGetContactsByEmailsResponse = function (oResponse, oR
 		oContacts[sEmail] = this.oContacts[sEmail];
 	}, this));
 	
-	if ($.isFunction(fResponseHandler))
+	if (_.isFunction(fResponseHandler))
 	{
 		fResponseHandler(oContacts);
 	}
