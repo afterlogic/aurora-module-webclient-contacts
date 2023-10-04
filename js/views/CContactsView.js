@@ -231,8 +231,8 @@ function CContactsView()
 	
 	this.isSearchFocused = ko.observable(false);
 	this.searchInput = ko.observable('');
-	this.search = ko.observable('');
-	
+	this.search = ko.observable();
+
 	this.groupUidForRequest = ko.observable('');
 	this.groupFullCollection = ko.observableArray([]);
 	this.groupFullCollection.subscribe(function () {
@@ -267,7 +267,7 @@ function CContactsView()
 	}, this);
 	
 	this.searchSubmitCommand = Utils.createCommand(this, function () {
-		this.changeRouting({ Search: this.searchInput() });
+		this.changeRouting({ Search: '' });
 	});
 	
 	this.searchMessagesInInbox = ModulesManager.run('MailWebclient', 'getSearchMessagesInInbox');
@@ -1182,6 +1182,7 @@ CContactsView.prototype.editGroup = function (oData)
  */
 CContactsView.prototype.changeGroupType = function (sStorage)
 {
+  this.searchInput('');
 	this.changeRouting({ Storage: sStorage, GroupUUID: '' });
 };
 
@@ -1190,6 +1191,7 @@ CContactsView.prototype.changeGroupType = function (sStorage)
  */
 CContactsView.prototype.onViewGroupClick = function (mData)
 {
+  this.searchInput('');
 	var sUUID = (typeof mData === 'string') ? mData : mData.UUID();
 	this.changeRouting({ Storage: 'group', GroupUUID: sUUID });
 };
@@ -1205,7 +1207,6 @@ CContactsView.prototype.onRoute = function (aParams)
 		bGroupFound = true,
 		bRequestContacts = this.bRefreshContactList
 	;
-	
 	this.bRefreshContactList = false;
 	
 	this.pageSwitcherLocked(true);
