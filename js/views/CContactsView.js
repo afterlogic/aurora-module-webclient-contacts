@@ -231,7 +231,7 @@ function CContactsView()
 	
 	this.isSearchFocused = ko.observable(false);
 	this.searchInput = ko.observable('');
-	this.search = ko.observable();
+	this.search = ko.observable('');
 
 	this.groupUidForRequest = ko.observable('');
 	this.groupFullCollection = ko.observableArray([]);
@@ -267,7 +267,7 @@ function CContactsView()
 	}, this);
 	
 	this.searchSubmitCommand = Utils.createCommand(this, function () {
-		this.changeRouting({ Search: '' });
+		this.changeRouting({ Search: this.searchInput() });
 	});
 	
 	this.searchMessagesInInbox = ModulesManager.run('MailWebclient', 'getSearchMessagesInInbox');
