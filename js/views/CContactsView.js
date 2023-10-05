@@ -96,7 +96,7 @@ function CContactsView()
 		'write': function (sValue) {
 			if (sValue !== '')
 			{
-				this.selectedStorageValue(($.inArray(sValue, Settings.Storages) !== -1) ? sValue : Settings.DefaultStorage);
+				this.selectedStorageValue(LinksUtils.checkStorageExists(sValue) ? sValue : Settings.DefaultStorage);
 				if (this.selectedStorageValue() !== 'group')
 				{
 					this.selectedGroupInList(null);
@@ -125,15 +125,13 @@ function CContactsView()
 			&& oParams.Request.Method === 'GetAddressBooks'
 			&& _.isArray(oParams.Response && oParams.Response.Result))
 		{
-			var aOldAddressBookStorages = _.map(this.addressBooks(), function (oAddressBook) {
+			var aOldAddressBookStorageIds = _.map(this.addressBooks(), function (oAddressBook) {
 				return oAddressBook.Id;
 			});
 			this.addressBooks(oParams.Response.Result);
-			var aNewAddressBookStorages = _.map(this.addressBooks(), function (oAddressBook) {
-				return oAddressBook.Id;
-			});
-			var aBaseStorages = _.difference(Settings.Storages, aOldAddressBookStorages);
-			Settings.Storages = aBaseStorages.concat(aNewAddressBookStorages);
+
+			var aBaseStorages = _.filter(Settings.Storages, (oStorage) => !_.includes(aOldAddressBookStorageIds, oStorage.Id));
+			Settings.Storages = aBaseStorages.concat(this.addressBooks());
 		}
 	}.bind(this));
 	this.manageAddressBooksHash = ko.computed(function () {
@@ -831,32 +829,13 @@ CContactsView.prototype.executeExport = function (sFormat)
 	}, this, { Format: 'Raw' });
 };
 
-CContactsView.prototype.getStorageDisplayName = function (storage)
+CContactsView.prototype.getStorageDisplayName = function (sStorageName)
 {
-	var result = '';
-
-	switch(storage) {
-		case 'all':
-			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_ALL');
-			break;
-		case 'personal':
-			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_PERSONAL');
-			break;
-		case 'team':
-			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_TEAM');
-			break;
-		case 'shared':
-			result = TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_SHARED');
-			break;
-	}
-
-	if (result == '') {
-		var abook = _.find(this.addressBooks(), function (oAddressBook) {
-			return oAddressBook.Id === storage;
-		});
-		if (abook) {
-			result = abook.DisplayName;
-		}
+	let result = 'contacts';
+	
+	const oAddessbook = _.find(Settings.Storages,(oStorage) => oStorage.Id === sStorageName );
+	if (oAddessbook?.DisplayName) {
+		result = oAddessbook.DisplayName;
 	}
 
 	return result;
@@ -1045,9 +1024,9 @@ CContactsView.prototype.onBind = function ()
 		}
 	});
 
-	this.showPersonalContacts(-1 !== $.inArray('personal', Settings.Storages));
-	this.showTeamContacts(-1 !== $.inArray('team', Settings.Storages));
-	this.showSharedToAllContacts(-1 !== $.inArray('shared', Settings.Storages));
+	this.showPersonalContacts(LinksUtils.checkStorageExists('personal'));
+	this.showTeamContacts(LinksUtils.checkStorageExists('team'));
+	this.showSharedToAllContacts(LinksUtils.checkStorageExists('shared'));
 	
 	this.selectedStorage(this.selectedStorage());
 	
@@ -1233,7 +1212,7 @@ CContactsView.prototype.onRoute = function (aParams)
 		bRequestContacts = true;
 	}
 	
-	if (this.selectedStorage() !== oParams.Storage && -1 !== $.inArray(oParams.Storage, Settings.Storages) && oParams.Storage !== 'group')
+	if (this.selectedStorage() !== oParams.Storage && LinksUtils.checkStorageExists(oParams.Storage) && oParams.Storage !== 'group')
 	{
 		this.selectedStorage(oParams.Storage);
 		bRequestContacts = true;

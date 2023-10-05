@@ -1,12 +1,8 @@
 'use strict';
 
 var
-	$ = require('jquery'),
-	
 	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
-	
 	Settings = require('modules/%ModuleName%/js/Settings.js'),
-	
 	LinksUtils = {}
 ;
 
@@ -28,6 +24,16 @@ function IsPageParam(sTemp)
 function IsContactParam(sTemp)
 {
 	return 'cnt' === sTemp.substr(0, 3);
+};
+
+/**
+ * @param {string} sStorageId
+ * 
+ * @return {boolean}
+ */
+LinksUtils.checkStorageExists = function (sStorageId)
+{
+	return !!Settings.Storages.find(oStorage => oStorage.Id === sStorageId)
 };
 
 /**
@@ -97,7 +103,7 @@ LinksUtils.parseContacts = function (aParam)
 	{
 		sStorage = Types.pString(aParam[iIndex]);
 		iIndex++;
-		if (-1 === $.inArray(sStorage, Settings.Storages))
+		if (!Settings.Storages.find(oStorage => oStorage.Id === sStorage))
 		{
 			sStorage = Settings.DefaultStorage;
 		}

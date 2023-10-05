@@ -1,9 +1,8 @@
 'use strict';
 
 var
-	$ = require('jquery'),
 	ko = require('knockout'),
-	
+
 	Settings = require('modules/%ModuleName%/js/Settings.js')
 ;
 
@@ -12,14 +11,7 @@ var
  */
 function CMobileSyncSettingsView()
 {
-	this.bVisiblePersonalContacts = -1 !== $.inArray('personal', Settings.Storages);
-	this.bVisibleSharedWithAllContacts = -1 !== $.inArray('shared', Settings.Storages);
-	this.bVisibleTeamContacts = -1 !== $.inArray('team', Settings.Storages);
-
-	this.davPersonalContactsUrl = ko.observable('');
-	this.davCollectedAddressesUrl = ko.observable('');
-	this.davSharedWithAllUrl = ko.observable('');
-	this.davTeamAddressBookUrl = ko.observable('');
+	this.AddressBooks = ko.observableArray([]);
 }
 
 CMobileSyncSettingsView.prototype.ViewTemplate = '%ModuleName%_MobileSyncSettingsView';
@@ -29,12 +21,18 @@ CMobileSyncSettingsView.prototype.ViewTemplate = '%ModuleName%_MobileSyncSetting
  */
 CMobileSyncSettingsView.prototype.populate = function (oDav)
 {
-	if (oDav.Contacts)
-	{
-		this.davPersonalContactsUrl(oDav.Contacts.PersonalContactsUrl);
-		this.davCollectedAddressesUrl(oDav.Contacts.CollectedAddressesUrl);
-		this.davSharedWithAllUrl(oDav.Contacts.SharedWithAllUrl);
-		this.davTeamAddressBookUrl(oDav.Contacts.TeamAddressBookUrl);
+	if (oDav.Contacts) {
+		const aAddressBooks = [];
+		Settings.Storages.forEach((oAddressBook) => {
+			if (oAddressBook.DisplayName) {
+				aAddressBooks.push({
+					'DisplayName': oAddressBook.DisplayName,
+					'DavUrl': oDav.Contacts[oAddressBook.Id] || ''
+				})
+			}
+		});
+
+		this.AddressBooks(aAddressBooks);
 	}
 };
 

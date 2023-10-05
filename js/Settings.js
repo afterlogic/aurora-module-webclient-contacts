@@ -3,7 +3,8 @@
 var
 	_ = require('underscore'),
 	
-	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js')
+	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
+	TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js')
 ;
 
 module.exports = {
@@ -39,13 +40,12 @@ module.exports = {
 			this.AddressBooks = _.filter(storages, function (storage) {
 				return storage && storage.Id && _.indexOf(['personal', 'collected', 'shared', 'team'], storage.Id) === -1;
 			});
-			this.Storages = _.map(storages, function (storage) {
-				return storage.Id || storage;
-			});
+
+			this.Storages = storages;
 			if (this.Storages.length > 0)
 			{
-				this.Storages.push('all');
-				this.Storages.push('group');
+				this.Storages.push({'Id': 'all', 'DisplayName': TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_ALL')});
+				this.Storages.push({'Id': 'group'});
 			}
 			this.AllowAddressBooksManagement = Types.pBool(oAppDataSection.AllowAddressBooksManagement, this.AllowAddressBooksManagement);
 			

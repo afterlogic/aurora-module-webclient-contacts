@@ -12,6 +12,7 @@ module.exports = function (oAppData) {
 		ContactsCache = require('modules/%ModuleName%/js/Cache.js'),
 		EnumsDeclarator = require('modules/%ModuleName%/js/enums.js'),
 		Settings = require('modules/%ModuleName%/js/Settings.js'),
+		Utils = require('modules/%ModuleName%/js/utils/Links.js'),
 		
 		SuggestionsAutocomplete = require('modules/%ModuleName%/js/SuggestionsAutocomplete.js'),
 		SuggestionsMethods = {
@@ -117,7 +118,7 @@ module.exports = function (oAppData) {
 					};
 				},
 				isTeamContactsAllowed: function () {
-					return _.indexOf(Settings.Storages, 'team') !== -1;
+					return Utils.checkStorageExists('team');
 				},
 				getMobileSyncSettingsView: function () {
 					return require('modules/%ModuleName%/js/views/MobileSyncSettingsView.js');
