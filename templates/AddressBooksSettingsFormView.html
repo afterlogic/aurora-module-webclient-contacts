@@ -10,6 +10,7 @@
 	<div>
 		<div class="items_list simple_list" data-bind="visible: addressBooks().length > 0">
 			<div data-bind="foreach: addressBooks">
+				<!-- ko if: Editable -->
 				<div class="item account">
 					<span class="link delete" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_DELETE'},
 							click: function () {$parent.deleteAddressBook(EntityId, DisplayName);}"></span>
@@ -17,6 +18,7 @@
 							click: function () {$parent.editAddressBook(EntityId, DisplayName);}"></span>
 					<span class="title" data-bind="text: DisplayName"></span>
 				</div>
+				<!-- /ko -->
 			</div>
 		</div>
 		<div class="buttons">

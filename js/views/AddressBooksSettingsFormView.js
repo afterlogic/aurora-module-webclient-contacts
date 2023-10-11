@@ -40,10 +40,10 @@ CAddressBooksSettingsFormView.prototype.onShow = function ()
 CAddressBooksSettingsFormView.prototype.populate = function ()
 {
 	this.loading(true);
-	Ajax.send('Contacts', 'GetAddressBooks', {}, function (oResponse) {
+	Ajax.send('Contacts', 'GetStorages', {}, function (oResponse) {
 		this.loading(false);
 		if (_.isArray(oResponse && oResponse.Result)) {
-			this.addressBooks(oResponse.Result.filter(addressbook => !addressbook.Shared));
+			this.addressBooks(oResponse.Result.filter(addressbook => addressbook.Editable));
 		} else {
 			Api.showErrorByCode(oResponse);
 		}

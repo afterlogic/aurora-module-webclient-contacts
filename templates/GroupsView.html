@@ -57,7 +57,9 @@
 			</div>
 			
 			<!-- ko foreach: addressBooks -->
-				<div class="item canSelect" data-bind="visible: Display, 
+				<div class="item canSelect" data-bind="
+						if: Id !== 'team' && Id !== 'personal' && Id !== 'shared',
+						visible: Display, 
 						css: {'selected': $parent.selectedStorage() === Id},
 						click: $parents[0].gotoContactList">
 					<span class="title" data-bind="click: function () { $parent.changeGroupType(Id); }, css: {'recivedAnim': $parent.recivedAnimTeam()}">

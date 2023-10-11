@@ -36,12 +36,12 @@ module.exports = {
 			this.ContactsPerPage = Types.pPositiveInt(oAppDataSection.ContactsPerPage, this.ContactsPerPage);
 			this.ImportContactsLink = Types.pString(oAppDataSection.ImportContactsLink, this.ImportContactsLink);
 
-			var storages = Types.pArray(oAppDataSection.Storages, this.Storages);
-			this.AddressBooks = _.filter(storages, function (storage) {
-				return storage && storage.Id && _.indexOf(['personal', 'collected', 'shared', 'team'], storage.Id) === -1;
+			var aStorages = Types.pArray(oAppDataSection.Storages, this.Storages);
+			this.AddressBooks = _.filter(aStorages, function (oStorage) {
+				return oStorage.CTag !== undefined;
 			});
 
-			this.Storages = storages;
+			this.Storages = aStorages;
 			if (this.Storages.length > 0)
 			{
 				this.Storages.push({'Id': 'all', 'DisplayName': TextUtils.i18n('%MODULENAME%/LABEL_STORAGE_ALL')});

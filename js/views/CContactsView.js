@@ -122,15 +122,12 @@ function CContactsView()
 	this.addressBooks = ko.observable(Settings.AddressBooks);
 	App.subscribeEvent('ReceiveAjaxResponse::after', function (oParams) {
 		if (oParams.Request.Module === 'Contacts'
-			&& oParams.Request.Method === 'GetAddressBooks'
+			&& oParams.Request.Method === 'GetStorages'
 			&& _.isArray(oParams.Response && oParams.Response.Result))
 		{
-			var aOldAddressBookStorageIds = _.map(this.addressBooks(), function (oAddressBook) {
-				return oAddressBook.Id;
-			});
 			this.addressBooks(oParams.Response.Result);
 
-			var aBaseStorages = _.filter(Settings.Storages, (oStorage) => !_.includes(aOldAddressBookStorageIds, oStorage.Id));
+			var aBaseStorages = _.filter(Settings.Storages, (oStorage) => oStorage.Display === undefined);
 			Settings.Storages = aBaseStorages.concat(this.addressBooks());
 		}
 	}.bind(this));
@@ -1094,7 +1091,7 @@ CContactsView.prototype.refreshContactsAndGroups = function ()
 	this.requestContactList();
 	this.requestGroupFullList();
 	// The result is handled in subscription above
-	Ajax.send('GetAddressBooks');
+	// Ajax.send('GetAddressBooks');
 };
 
 CContactsView.prototype.requestContactList = function ()
@@ -1161,7 +1158,7 @@ CContactsView.prototype.editGroup = function (oData)
  */
 CContactsView.prototype.changeGroupType = function (sStorage)
 {
-  this.searchInput('');
+	this.searchInput('');
 	this.changeRouting({ Storage: sStorage, GroupUUID: '' });
 };
 
@@ -1170,7 +1167,7 @@ CContactsView.prototype.changeGroupType = function (sStorage)
  */
 CContactsView.prototype.onViewGroupClick = function (mData)
 {
-  this.searchInput('');
+	this.searchInput('');
 	var sUUID = (typeof mData === 'string') ? mData : mData.UUID();
 	this.changeRouting({ Storage: 'group', GroupUUID: sUUID });
 };
