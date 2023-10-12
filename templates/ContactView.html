@@ -67,11 +67,11 @@
 						data-bind="visible: personalStreetAddress() || personalCity() || personalState() || personalCountry() || personalZipCode()">
 						<span class="label address" data-bind="i18n: {'key': '%MODULENAME%/LABEL_ADDRESS'}"></span>
 
-						<div class="row street" data-bind="visible: '' !== personalStreetAddress()">
+						<div class="row flex street" data-bind="visible: '' !== personalStreetAddress()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_STREET_ADDRESS'}"></span>:
 							</span>
-							<span class="value" data-bind="text: personalStreetAddress"></span>
+							<span class="value pre" data-bind="text: personalStreetAddress"></span>
 						</div>
 						<div class="row city" data-bind="visible: '' !== personalCity()">
 							<span class="label">
@@ -161,11 +161,11 @@
 							</span>
 							<span class="value" data-bind="text: businessOffice"></span>
 						</div>
-						<div class="row street" data-bind="visible: '' !== businessStreetAddress()">
+						<div class="row flex street" data-bind="visible: '' !== businessStreetAddress()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_STREET_ADDRESS'}"></span>:
 							</span>
-							<span class="value" data-bind="text: businessStreetAddress"></span>
+							<span class="value pre" data-bind="text: businessStreetAddress"></span>
 						</div>
 						<div class="row city" data-bind="visible: '' !== businessCity()">
 							<span class="label">
@@ -230,11 +230,11 @@
 							</span>
 							<span class="value" data-bind="text: otherEmail"></span>
 						</div>
-						<div class="row notes" data-bind="visible: '' !== otherNotes()">
+						<div class="row flex notes" data-bind="visible: '' !== otherNotes()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_NOTES'}"></span>:
 							</span>
-							<span class="value" data-bind="text: otherNotes"></span>
+							<span class="value pre" data-bind="text: otherNotes"></span>
 						</div>
 					</div>
 				</div>
