@@ -2,47 +2,43 @@
 
 var
 	_ = require('underscore'),
-	// $ = require('jquery'),
-	// ko = require('knockout'),
-	// FileSaver = require('%PathToCoreWebclientModule%/js/vendors/FileSaver.js'),
+	$ = require('jquery'),
+	ko = require('knockout'),
+	FileSaver = require('%PathToCoreWebclientModule%/js/vendors/FileSaver.js'),
 	
-	// TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js'),
-	// Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
-	// Utils = require('%PathToCoreWebclientModule%/js/utils/Common.js'),
+	TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js'),
+	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
+	Utils = require('%PathToCoreWebclientModule%/js/utils/Common.js'),
 	
-	// Api = require('%PathToCoreWebclientModule%/js/Api.js'),
-	// App = require('%PathToCoreWebclientModule%/js/App.js'),
-	// CoreAjax = require('%PathToCoreWebclientModule%/js/Ajax.js'),
-	// CJua = require('%PathToCoreWebclientModule%/js/CJua.js'),
-	// CSelector = require('%PathToCoreWebclientModule%/js/CSelector.js'),
-	// ModulesManager = require('%PathToCoreWebclientModule%/js/ModulesManager.js'),
-	// Routing = require('%PathToCoreWebclientModule%/js/Routing.js'),
-	// Screens = require('%PathToCoreWebclientModule%/js/Screens.js'),
+	Api = require('%PathToCoreWebclientModule%/js/Api.js'),
+	App = require('%PathToCoreWebclientModule%/js/App.js'),
+	CoreAjax = require('%PathToCoreWebclientModule%/js/Ajax.js'),
+	CJua = require('%PathToCoreWebclientModule%/js/CJua.js'),
+	CSelector = require('%PathToCoreWebclientModule%/js/CSelector.js'),
+	ModulesManager = require('%PathToCoreWebclientModule%/js/ModulesManager.js'),
+	Routing = require('%PathToCoreWebclientModule%/js/Routing.js'),
+	Screens = require('%PathToCoreWebclientModule%/js/Screens.js'),
 	
-	CAbstractScreenView = require('%PathToCoreWebclientModule%/js/views/CAbstractScreenView.js')
-	// CPageSwitcherView = require('%PathToCoreWebclientModule%/js/views/CPageSwitcherView.js'),
+	CAbstractScreenView = require('%PathToCoreWebclientModule%/js/views/CAbstractScreenView.js'),
+	CPageSwitcherView = require('%PathToCoreWebclientModule%/js/views/CPageSwitcherView.js'),
 	
-	// Popups = require('%PathToCoreWebclientModule%/js/Popups.js'),
-	// ConfirmPopup = require('%PathToCoreWebclientModule%/js/popups/ConfirmPopup.js'),
+	Popups = require('%PathToCoreWebclientModule%/js/Popups.js'),
+	ConfirmPopup = require('%PathToCoreWebclientModule%/js/popups/ConfirmPopup.js'),
 
-	// LinksUtils = require('modules/%ModuleName%/js/utils/Links.js'),
+	LinksUtils = require('modules/%ModuleName%/js/utils/Links.js'),
 	
-	// Ajax = require('modules/%ModuleName%/js/Ajax.js'),
-	// ContactsCache = require('modules/%ModuleName%/js/Cache.js'),
-	// Settings = require('modules/%ModuleName%/js/Settings.js'),
+	Ajax = require('modules/%ModuleName%/js/Ajax.js'),
+	ContactsCache = require('modules/%ModuleName%/js/Cache.js'),
+	Settings = require('modules/%ModuleName%/js/Settings.js'),
 	
-	// CContactListItemModel = require('modules/%ModuleName%/js/models/CContactListItemModel.js'),
-	// CContactModel = require('modules/%ModuleName%/js/models/CContactModel.js'),
-	// CGroupModel = require('modules/%ModuleName%/js/models/CGroupModel.js'),
+	CContactListItemModel = require('modules/%ModuleName%/js/models/CContactListItemModel.js'),
+	CContactModel = require('modules/%ModuleName%/js/models/CContactModel.js'),
+	CGroupModel = require('modules/%ModuleName%/js/models/CGroupModel.js'),
 	
-	// CImportView = require('modules/%ModuleName%/js/views/CImportView.js'),
+	CImportView = require('modules/%ModuleName%/js/views/CImportView.js'),
 	
-	// Enums = window.Enums
+	Enums = window.Enums
 ;
-
-// import { createApp } from 'vue'
-// import App from './App.vue'
-
 
 /**
  * @constructor
@@ -51,358 +47,356 @@ function CContactsView()
 {
 	CAbstractScreenView.call(this, '%ModuleName%');
 
-	console.log('Conatcts constructor');
+	this.shareAddressbookControlView = ModulesManager.run('SharedContacts', 'getShareAddressbookControlView'),
 
-	// this.shareAddressbookControlView = ModulesManager.run('SharedContacts', 'getShareAddressbookControlView'),
+	this.browserTitle = ko.observable(TextUtils.i18n('%MODULENAME%/HEADING_BROWSER_TAB'));
+	
+	this.contactCount = ko.observable(0);
+	this.uploaderArea = ko.observable(null);
+	this.dragActive = ko.observable(false);
+	this.bDragActiveComp = ko.computed(function () {
+		return this.dragActive();
+	}, this);
+	
+	this.sImportContactsLink = Settings.ImportContactsLink;
+	
+	this.loadingList = ko.observable(false);
+	this.preLoadingList = ko.observable(false);
+	this.loadingList.subscribe(function (bLoading) {
+		this.preLoadingList(bLoading);
+	}, this);
+	this.loadingViewPane = ko.observable(false);
+	
+	this.showPersonalContacts = ko.observable(false);
+	this.showTeamContacts = ko.observable(false);
+	this.showSharedToAllContacts = ko.observable(false);
+	
+	this.showAllContacts = ko.computed(function () {
+		return 1 < [this.showPersonalContacts() ? '1' : '',
+			this.showTeamContacts() ? '1' : '',
+			this.showSharedToAllContacts() ? '1' : ''
+		].join('').length;
+	}, this);
+	
+	this.recivedAnimPersonal = ko.observable(false).extend({'autoResetToFalse': 500});
+	this.recivedAnimShared = ko.observable(false).extend({'autoResetToFalse': 500});
+	this.recivedAnimTeam = ko.observable(false).extend({'autoResetToFalse': 500});
+	
+	this.isAddressBookSelected = ko.observable(false);
+	this.isSelectedAddressbookSharedForReading = ko.observable(false);
+	this.isTeamStorageSelected = ko.observable(false);
+	this.isNotTeamStorageSelected = ko.observable(false);
+	this.disableDropToPersonal = ko.observable(false);
+	this.disableDropToSharedWithAll = ko.observable(false);
+	this.selectedStorageValue = ko.observable('');
+	this.selectedStorage = ko.computed({
+		'read': function () {
+			return this.selectedStorageValue();
+		},
+		'write': function (sValue) {
+			if (sValue !== '')
+			{
+				this.selectedStorageValue(LinksUtils.checkStorageExists(sValue) ? sValue : Settings.DefaultStorage);
+				if (this.selectedStorageValue() !== 'group')
+				{
+					this.selectedGroupInList(null);
+					this.selectedItem(null);
+					this.selector.listCheckedOrSelected(false);
+					this.currentGroupUUID('');
+				}
+				const selectedAddressbook = this.addressBooks().find(addressbook => addressbook.Id === this.selectedStorageValue());
+				this.isAddressBookSelected(!!selectedAddressbook);
+				this.isSelectedAddressbookSharedForReading(
+						selectedAddressbook && selectedAddressbook.Shared
+						&& selectedAddressbook.Access === Enums.SharedAddressbookAccess.Read
+				);
+				this.isTeamStorageSelected(this.selectedStorageValue() === 'team');
+				this.isNotTeamStorageSelected(this.selectedStorageValue() !== 'team');
+				this.disableDropToPersonal(this.selectedStorageValue() !== 'shared');
+				this.disableDropToSharedWithAll(this.selectedStorageValue() !== 'personal');
+			}
+		},
+		'owner': this
+	});
+	
+	this.addressBooks = ko.observable(Settings.AddressBooks);
+	App.subscribeEvent('ReceiveAjaxResponse::after', function (oParams) {
+		if (oParams.Request.Module === 'Contacts'
+			&& oParams.Request.Method === 'GetStorages'
+			&& _.isArray(oParams.Response && oParams.Response.Result))
+		{
+			this.addressBooks(oParams.Response.Result);
 
-	// this.browserTitle = ko.observable(TextUtils.i18n('%MODULENAME%/HEADING_BROWSER_TAB'));
-	
-	// this.contactCount = ko.observable(0);
-	// this.uploaderArea = ko.observable(null);
-	// this.dragActive = ko.observable(false);
-	// this.bDragActiveComp = ko.computed(function () {
-	// 	return this.dragActive();
-	// }, this);
-	
-	// this.sImportContactsLink = Settings.ImportContactsLink;
-	
-	// this.loadingList = ko.observable(false);
-	// this.preLoadingList = ko.observable(false);
-	// this.loadingList.subscribe(function (bLoading) {
-	// 	this.preLoadingList(bLoading);
-	// }, this);
-	// this.loadingViewPane = ko.observable(false);
-	
-	// this.showPersonalContacts = ko.observable(false);
-	// this.showTeamContacts = ko.observable(false);
-	// this.showSharedToAllContacts = ko.observable(false);
-	
-	// this.showAllContacts = ko.computed(function () {
-	// 	return 1 < [this.showPersonalContacts() ? '1' : '',
-	// 		this.showTeamContacts() ? '1' : '',
-	// 		this.showSharedToAllContacts() ? '1' : ''
-	// 	].join('').length;
-	// }, this);
-	
-	// this.recivedAnimPersonal = ko.observable(false).extend({'autoResetToFalse': 500});
-	// this.recivedAnimShared = ko.observable(false).extend({'autoResetToFalse': 500});
-	// this.recivedAnimTeam = ko.observable(false).extend({'autoResetToFalse': 500});
-	
-	// this.isAddressBookSelected = ko.observable(false);
-	// this.isSelectedAddressbookSharedForReading = ko.observable(false);
-	// this.isTeamStorageSelected = ko.observable(false);
-	// this.isNotTeamStorageSelected = ko.observable(false);
-	// this.disableDropToPersonal = ko.observable(false);
-	// this.disableDropToSharedWithAll = ko.observable(false);
-	// this.selectedStorageValue = ko.observable('');
-	// this.selectedStorage = ko.computed({
-	// 	'read': function () {
-	// 		return this.selectedStorageValue();
-	// 	},
-	// 	'write': function (sValue) {
-	// 		if (sValue !== '')
-	// 		{
-	// 			this.selectedStorageValue(LinksUtils.checkStorageExists(sValue) ? sValue : Settings.DefaultStorage);
-	// 			if (this.selectedStorageValue() !== 'group')
-	// 			{
-	// 				this.selectedGroupInList(null);
-	// 				this.selectedItem(null);
-	// 				this.selector.listCheckedOrSelected(false);
-	// 				this.currentGroupUUID('');
-	// 			}
-	// 			const selectedAddressbook = this.addressBooks().find(addressbook => addressbook.Id === this.selectedStorageValue());
-	// 			this.isAddressBookSelected(!!selectedAddressbook);
-	// 			this.isSelectedAddressbookSharedForReading(
-	// 					selectedAddressbook && selectedAddressbook.Shared
-	// 					&& selectedAddressbook.Access === Enums.SharedAddressbookAccess.Read
-	// 			);
-	// 			this.isTeamStorageSelected(this.selectedStorageValue() === 'team');
-	// 			this.isNotTeamStorageSelected(this.selectedStorageValue() !== 'team');
-	// 			this.disableDropToPersonal(this.selectedStorageValue() !== 'shared');
-	// 			this.disableDropToSharedWithAll(this.selectedStorageValue() !== 'personal');
-	// 		}
-	// 	},
-	// 	'owner': this
-	// });
-	
-	// this.addressBooks = ko.observable(Settings.AddressBooks);
-	// App.subscribeEvent('ReceiveAjaxResponse::after', function (oParams) {
-	// 	if (oParams.Request.Module === 'Contacts'
-	// 		&& oParams.Request.Method === 'GetStorages'
-	// 		&& _.isArray(oParams.Response && oParams.Response.Result))
-	// 	{
-	// 		this.addressBooks(oParams.Response.Result);
+			var aBaseStorages = _.filter(Settings.Storages, (oStorage) => oStorage.Display === undefined);
+			Settings.Storages = aBaseStorages.concat(this.addressBooks());
+		}
+	}.bind(this));
+	this.manageAddressBooksHash = ko.computed(function () {
+		if (ModulesManager.isModuleEnabled('SettingsWebclient') && Settings.AllowAddressBooksManagement) {
+			return Routing.buildHashFromArray(['settings', 'manage-addressbooks']);
+		}
+		return '#';
+	}, this);
 
-	// 		var aBaseStorages = _.filter(Settings.Storages, (oStorage) => oStorage.Display === undefined);
-	// 		Settings.Storages = aBaseStorages.concat(this.addressBooks());
-	// 	}
-	// }.bind(this));
-	// this.manageAddressBooksHash = ko.computed(function () {
-	// 	if (ModulesManager.isModuleEnabled('SettingsWebclient') && Settings.AllowAddressBooksManagement) {
-	// 		return Routing.buildHashFromArray(['settings', 'manage-addressbooks']);
-	// 	}
-	// 	return '#';
-	// }, this);
-
-	// this.selectedGroupInList = ko.observable(null);
+	this.selectedGroupInList = ko.observable(null);
 	
-	// this.selectedGroupInList.subscribe(function () {
-	// 	var oPrev = this.selectedGroupInList();
-	// 	if (oPrev)
-	// 	{
-	// 		oPrev.selected(false);
-	// 	}
-	// }, this, 'beforeChange');
+	this.selectedGroupInList.subscribe(function () {
+		var oPrev = this.selectedGroupInList();
+		if (oPrev)
+		{
+			oPrev.selected(false);
+		}
+	}, this, 'beforeChange');
 	
-	// this.selectedGroupInList.subscribe(function (oGroup) {
-	// 	if (oGroup && this.showPersonalContacts())
-	// 	{
-	// 		oGroup.selected(true);
-	// 		this.selectedStorage('group');
-	// 		this.requestContactList();
-	// 	}
-	// }, this);
+	this.selectedGroupInList.subscribe(function (oGroup) {
+		if (oGroup && this.showPersonalContacts())
+		{
+			oGroup.selected(true);
+			this.selectedStorage('group');
+			this.requestContactList();
+		}
+	}, this);
 	
-	// this.selectedGroup = ko.observable(null);
-	// this.selectedContact = ko.observable(null);
-	// this.selectedGroupEmails = ko.observableArray([]);
+	this.selectedGroup = ko.observable(null);
+	this.selectedContact = ko.observable(null);
+	this.selectedGroupEmails = ko.observableArray([]);
 	
-	// this.currentGroupUUID = ko.observable('');
+	this.currentGroupUUID = ko.observable('');
 	
-	// this.oContactModel = new CContactModel();
-	// this.oGroupModel = new CGroupModel();
+	this.oContactModel = new CContactModel();
+	this.oGroupModel = new CGroupModel();
 	
-	// this.oImportView = new CImportView(this);
+	this.oImportView = new CImportView(this);
 	
-	// this.selectedOldItem = ko.observable(null);
-	// this.selectedItem = ko.computed({
-	// 	'read': function () {
-	// 		return this.selectedContact() || this.selectedGroup() || null;
-	// 	},
-	// 	'write': function (oItem) {
-	// 		if (oItem instanceof CContactModel)
-	// 		{
-	// 			this.selectedGroup(null);
-	// 			this.selectedContact(oItem);
-	// 		}
-	// 		else if (oItem instanceof CGroupModel)
-	// 		{
-	// 			this.selectedContact(null);
-	// 			this.selectedGroup(oItem);
-	// 			this.currentGroupUUID(oItem.uuid());
-	// 		}
-	// 		else
-	// 		{
-	// 			this.selectedGroup(null);
-	// 			this.selectedContact(null);
-	// 		}
+	this.selectedOldItem = ko.observable(null);
+	this.selectedItem = ko.computed({
+		'read': function () {
+			return this.selectedContact() || this.selectedGroup() || null;
+		},
+		'write': function (oItem) {
+			if (oItem instanceof CContactModel)
+			{
+				this.selectedGroup(null);
+				this.selectedContact(oItem);
+			}
+			else if (oItem instanceof CGroupModel)
+			{
+				this.selectedContact(null);
+				this.selectedGroup(oItem);
+				this.currentGroupUUID(oItem.uuid());
+			}
+			else
+			{
+				this.selectedGroup(null);
+				this.selectedContact(null);
+			}
 			
-	// 		this.loadingViewPane(false);
-	// 	},
-	// 	'owner': this
-	// });
+			this.loadingViewPane(false);
+		},
+		'owner': this
+	});
 	
-	// this.collection = ko.observableArray([]);
-	// this.contactUidForRequest = ko.observable('');
-	// this.collection.subscribe(function () {
-	// 	if (this.collection().length > 0 && this.contactUidForRequest() !== '')
-	// 	{
-	// 		this.requestContact(this.contactUidForRequest());
-	// 		this.contactUidForRequest('');
-	// 	}
-	// }, this);
+	this.collection = ko.observableArray([]);
+	this.contactUidForRequest = ko.observable('');
+	this.collection.subscribe(function () {
+		if (this.collection().length > 0 && this.contactUidForRequest() !== '')
+		{
+			this.requestContact(this.contactUidForRequest());
+			this.contactUidForRequest('');
+		}
+	}, this);
 
-	// this.bSortEnabled = Settings.ContactsSortBy && Settings.ContactsSortBy.Allow 
-	// 	&& Settings.ContactsSortBy.DisplayOptions && Settings.ContactsSortBy.DisplayOptions.length > 0;
+	this.bSortEnabled = Settings.ContactsSortBy && Settings.ContactsSortBy.Allow 
+		&& Settings.ContactsSortBy.DisplayOptions && Settings.ContactsSortBy.DisplayOptions.length > 0;
 
-	// this.sortBy = ko.observable(Settings.ContactsSortBy.DefaultSortBy);
-	// this.sortOrder = ko.observable(Settings.ContactsSortBy.DefaultSortOrder);
+	this.sortBy = ko.observable(Settings.ContactsSortBy.DefaultSortBy);
+	this.sortOrder = ko.observable(Settings.ContactsSortBy.DefaultSortOrder);
 
-	// this.aSortList = [];
-	// if (this.bSortEnabled) {
-	// 	_.each(Enums.ContactSortField, function (iValue, sName) {
-	// 		if (Settings.ContactsSortBy.DisplayOptions.indexOf(sName) >= 0) {
-	// 			this.aSortList.push({
-	// 				sText: TextUtils.i18n('%MODULENAME%/SORT_OPTION_' + sName.toUpperCase()),
-	// 				sSortBy: iValue
-	// 			});
-	// 		}
-	// 	}.bind(this));
-	// }
+	this.aSortList = [];
+	if (this.bSortEnabled) {
+		_.each(Enums.ContactSortField, function (iValue, sName) {
+			if (Settings.ContactsSortBy.DisplayOptions.indexOf(sName) >= 0) {
+				this.aSortList.push({
+					sText: TextUtils.i18n('%MODULENAME%/SORT_OPTION_' + sName.toUpperCase()),
+					sSortBy: iValue
+				});
+			}
+		}.bind(this));
+	}
 	
-	// this.isSearchFocused = ko.observable(false);
-	// this.searchInput = ko.observable('');
-	// this.search = ko.observable('');
+	this.isSearchFocused = ko.observable(false);
+	this.searchInput = ko.observable('');
+	this.search = ko.observable('');
 
-	// this.groupUidForRequest = ko.observable('');
-	// this.groupFullCollection = ko.observableArray([]);
-	// this.groupFullCollection.subscribe(function () {
-	// 	if (this.groupUidForRequest())
-	// 	{
-	// 		this.onViewGroupClick(this.groupUidForRequest());
-	// 	}
-	// }, this);
+	this.groupUidForRequest = ko.observable('');
+	this.groupFullCollection = ko.observableArray([]);
+	this.groupFullCollection.subscribe(function () {
+		if (this.groupUidForRequest())
+		{
+			this.onViewGroupClick(this.groupUidForRequest());
+		}
+	}, this);
 	
-	// this.selectedContact.subscribe(function (oContact) {
-	// 	if (oContact)
-	// 	{
-	// 		var aGroupUUIDs = oContact.groups();
-	// 		_.each(this.groupFullCollection(), function (oItem) {
-	// 			oItem.checked(oItem && 0 <= $.inArray(oItem.UUID(), aGroupUUIDs));
-	// 		});
-	// 	}
-	// }, this);
+	this.selectedContact.subscribe(function (oContact) {
+		if (oContact)
+		{
+			var aGroupUUIDs = oContact.groups();
+			_.each(this.groupFullCollection(), function (oItem) {
+				oItem.checked(oItem && 0 <= $.inArray(oItem.UUID(), aGroupUUIDs));
+			});
+		}
+	}, this);
 	
-	// this.pageSwitcherLocked = ko.observable(false);
-	// this.oPageSwitcher = new CPageSwitcherView(0, Settings.ContactsPerPage);
-	// this.oPageSwitcher.currentPage.subscribe(function () {
-	// 	if (!this.pageSwitcherLocked())
-	// 	{
-	// 		this.changeRouting();
-	// 	}
-	// }, this);
-	// this.currentPage = ko.observable(1);
+	this.pageSwitcherLocked = ko.observable(false);
+	this.oPageSwitcher = new CPageSwitcherView(0, Settings.ContactsPerPage);
+	this.oPageSwitcher.currentPage.subscribe(function () {
+		if (!this.pageSwitcherLocked())
+		{
+			this.changeRouting();
+		}
+	}, this);
+	this.currentPage = ko.observable(1);
 	
-	// this.search.subscribe(function (sValue) {
-	// 	this.searchInput(sValue);
-	// }, this);
+	this.search.subscribe(function (sValue) {
+		this.searchInput(sValue);
+	}, this);
 	
-	// this.searchSubmitCommand = Utils.createCommand(this, function () {
-	// 	this.changeRouting({ Search: this.searchInput() });
-	// });
+	this.searchSubmitCommand = Utils.createCommand(this, function () {
+		this.changeRouting({ Search: this.searchInput() });
+	});
 	
-	// this.searchMessagesInInbox = ModulesManager.run('MailWebclient', 'getSearchMessagesInInbox');
-	// this.bAllowSearchMessagesInInbox = _.isFunction(this.searchMessagesInInbox);
-	// this.composeMessageToAddresses = ModulesManager.run('MailWebclient', 'getComposeMessageToAddresses');
-	// this.bAllowComposeMessageToAddresses = _.isFunction(this.composeMessageToAddresses);
-	// this.selector = new CSelector(this.collection, _.bind(this.viewContact, this), _.bind(this.deleteContact, this), this.bAllowComposeMessageToAddresses ? _.bind(this.composeMessageToContact, this) : null);
+	this.searchMessagesInInbox = ModulesManager.run('MailWebclient', 'getSearchMessagesInInbox');
+	this.bAllowSearchMessagesInInbox = _.isFunction(this.searchMessagesInInbox);
+	this.composeMessageToAddresses = ModulesManager.run('MailWebclient', 'getComposeMessageToAddresses');
+	this.bAllowComposeMessageToAddresses = _.isFunction(this.composeMessageToAddresses);
+	this.selector = new CSelector(this.collection, _.bind(this.viewContact, this), _.bind(this.deleteContact, this), this.bAllowComposeMessageToAddresses ? _.bind(this.composeMessageToContact, this) : null);
 	
-	// this.checkAll = this.selector.koCheckAll();
-	// this.checkAllIncomplite = this.selector.koCheckAllIncomplete();
+	this.checkAll = this.selector.koCheckAll();
+	this.checkAllIncomplite = this.selector.koCheckAllIncomplete();
 	
-	// this.isCheckedOrSelected = ko.computed(function () {
-	// 	return 0 < this.selector.listCheckedOrSelected().length;
-	// }, this);
-	// this.isEnableAddContacts = this.isCheckedOrSelected;
-	// this.isEnableRemoveContactsFromGroup = this.isCheckedOrSelected;
-	// this.isEnableDeleting = this.isCheckedOrSelected;
-	// this.isDeleteVisible = ko.computed(function () {
-	// 	return this.showPersonalContacts() && this.selectedStorage() === 'personal'
-	// 			|| this.showSharedToAllContacts() && this.selectedStorage() === 'shared'
-	// 			|| this.isAddressBookSelected() && !this.isSelectedAddressbookSharedForReading();
-	// }, this);
-	// this.isEnableSharing = this.isCheckedOrSelected;
-	// this.visibleShareCommand = ko.computed(function () {
-	// 	return this.showPersonalContacts() && this.showSharedToAllContacts() && this.selectedStorage() === 'personal';
-	// }, this);
-	// this.visibleUnshareCommand = ko.computed(function () {
-	// 	return this.showPersonalContacts() && this.showSharedToAllContacts() && this.selectedStorage() === 'shared';
-	// }, this);
+	this.isCheckedOrSelected = ko.computed(function () {
+		return 0 < this.selector.listCheckedOrSelected().length;
+	}, this);
+	this.isEnableAddContacts = this.isCheckedOrSelected;
+	this.isEnableRemoveContactsFromGroup = this.isCheckedOrSelected;
+	this.isEnableDeleting = this.isCheckedOrSelected;
+	this.isDeleteVisible = ko.computed(function () {
+		return this.showPersonalContacts() && this.selectedStorage() === 'personal'
+				|| this.showSharedToAllContacts() && this.selectedStorage() === 'shared'
+				|| this.isAddressBookSelected() && !this.isSelectedAddressbookSharedForReading();
+	}, this);
+	this.isEnableSharing = this.isCheckedOrSelected;
+	this.visibleShareCommand = ko.computed(function () {
+		return this.showPersonalContacts() && this.showSharedToAllContacts() && this.selectedStorage() === 'personal';
+	}, this);
+	this.visibleUnshareCommand = ko.computed(function () {
+		return this.showPersonalContacts() && this.showSharedToAllContacts() && this.selectedStorage() === 'shared';
+	}, this);
 	
-	// this.isExactlyOneContactSelected = ko.computed(function () {
-	// 	return 1 === this.selector.listCheckedOrSelected().length;
-	// }, this);
+	this.isExactlyOneContactSelected = ko.computed(function () {
+		return 1 === this.selector.listCheckedOrSelected().length;
+	}, this);
 	
-	// this.isSaving = ko.observable(false);
+	this.isSaving = ko.observable(false);
 	
-	// this.isEnableCreateContact = ko.computed(function () {
-	// 	return this.isNotTeamStorageSelected() && !this.isSelectedAddressbookSharedForReading();
-	// }, this);
-	// this.newContactCommand = Utils.createCommand(this, this.executeNewContact, this.isEnableCreateContact);
-	// this.newGroupCommand = Utils.createCommand(this, this.executeNewGroup);
-	// this.addContactsCommand = Utils.createCommand(this, function () {}, this.isEnableAddContacts);
-	// this.deleteCommand = Utils.createCommand(this, this.deleteContact, this.isEnableDeleting);
-	// this.selectedCount = ko.computed(function () {
-	// 	var
-	// 		aChecked = _.filter(this.selector.listCheckedOrSelected(), function (oItem) {
-	// 			return !oItem.ReadOnly();
-	// 		});
-	// 	return aChecked.length;
-	// }, this);
-	// this.shareCommand = Utils.createCommand(this, this.executeShare, this.isEnableSharing);
-	// this.removeFromGroupCommand = Utils.createCommand(this, this.executeRemoveFromGroup, this.isEnableRemoveContactsFromGroup);
-	// this.isImportAllowed = ko.computed(function () {
-	// 	return this.isNotTeamStorageSelected() &&!this.isSelectedAddressbookSharedForReading();
-	// }, this);
-	// this.importCommand = Utils.createCommand(this, this.executeImport);
-	// this.saveCommand = Utils.createCommand(this, this.executeSave);
-	// this.saveEncryptSignFlagsCommand = Utils.createCommand(this, this.executeSaveEncryptSignFlags, () => !this.isSaving());
-	// this.updateSharedToAllCommand = Utils.createCommand(this, this.executeUpdateSharedToAll, this.isExactlyOneContactSelected);
-	// this.composeMessageCommand = Utils.createCommand(this, this.composeMessage, this.isCheckedOrSelected);
+	this.isEnableCreateContact = ko.computed(function () {
+		return this.isNotTeamStorageSelected() && !this.isSelectedAddressbookSharedForReading();
+	}, this);
+	this.newContactCommand = Utils.createCommand(this, this.executeNewContact, this.isEnableCreateContact);
+	this.newGroupCommand = Utils.createCommand(this, this.executeNewGroup);
+	this.addContactsCommand = Utils.createCommand(this, function () {}, this.isEnableAddContacts);
+	this.deleteCommand = Utils.createCommand(this, this.deleteContact, this.isEnableDeleting);
+	this.selectedCount = ko.computed(function () {
+		var
+			aChecked = _.filter(this.selector.listCheckedOrSelected(), function (oItem) {
+				return !oItem.ReadOnly();
+			});
+		return aChecked.length;
+	}, this);
+	this.shareCommand = Utils.createCommand(this, this.executeShare, this.isEnableSharing);
+	this.removeFromGroupCommand = Utils.createCommand(this, this.executeRemoveFromGroup, this.isEnableRemoveContactsFromGroup);
+	this.isImportAllowed = ko.computed(function () {
+		return this.isNotTeamStorageSelected() &&!this.isSelectedAddressbookSharedForReading();
+	}, this);
+	this.importCommand = Utils.createCommand(this, this.executeImport);
+	this.saveCommand = Utils.createCommand(this, this.executeSave);
+	this.saveEncryptSignFlagsCommand = Utils.createCommand(this, this.executeSaveEncryptSignFlags, () => !this.isSaving());
+	this.updateSharedToAllCommand = Utils.createCommand(this, this.executeUpdateSharedToAll, this.isExactlyOneContactSelected);
+	this.composeMessageCommand = Utils.createCommand(this, this.composeMessage, this.isCheckedOrSelected);
 	
-	// this.selector.listCheckedOrSelected.subscribe(function (aList) {
-	// 	this.oGroupModel.newContactsInGroupCount(aList.length);
-	// }, this);
+	this.selector.listCheckedOrSelected.subscribe(function (aList) {
+		this.oGroupModel.newContactsInGroupCount(aList.length);
+	}, this);
 	
-	// this.isSearch = ko.computed(function () {
-	// 	return this.search() !== '';
-	// }, this);
-	// this.isEmptyList = ko.computed(function () {
-	// 	return 0 === this.collection().length;
-	// }, this);
+	this.isSearch = ko.computed(function () {
+		return this.search() !== '';
+	}, this);
+	this.isEmptyList = ko.computed(function () {
+		return 0 === this.collection().length;
+	}, this);
 	
-	// this.searchText = ko.computed(function () {
-	// 	return TextUtils.i18n('%MODULENAME%/INFO_SEARCH_RESULT', {
-	// 		'SEARCH': this.search()
-	// 	});
-	// }, this);
+	this.searchText = ko.computed(function () {
+		return TextUtils.i18n('%MODULENAME%/INFO_SEARCH_RESULT', {
+			'SEARCH': this.search()
+		});
+	}, this);
 	
-	// this.visibleDragNDropToGroupText = ko.computed(function () {
-	// 	return !App.isMobile() && this.selectedStorage() === 'group';
-	// }, this);
-	// this.selectedPanel = ko.observable(Enums.MobilePanel.Items);
+	this.visibleDragNDropToGroupText = ko.computed(function () {
+		return !App.isMobile() && this.selectedStorage() === 'group';
+	}, this);
+	this.selectedPanel = ko.observable(Enums.MobilePanel.Items);
 	
-	// this.enableExport = ko.computed(function () {
-	// 	return this.contactCount() > 0;
-	// }, this);
-	// this.aExportData = [];
-	// _.each(Settings.ImportExportFormats, function (sFormat) {
-	// 	if (Types.isNonEmptyString(sFormat))
-	// 	{
-	// 		this.aExportData.push({
-	// 			'css': sFormat.toLowerCase(),
-	// 			'text': TextUtils.i18n('%MODULENAME%/ACTION_EXPORT_AS', {'FORMAT': sFormat.toUpperCase()}),
-	// 			'command': Utils.createCommand(this, function () { this.executeExport(sFormat); }, this.enableExport)
-	// 		});
-	// 	}
-	// }, this);
-	// this.visibleCreateOrImportText = ko.computed(function () {
-	// 	return this.selectedStorage() !== 'all' && this.selectedStorage() !== 'shared' &&
-	// 			this.selectedStorage() !== 'team' && this.selectedStorage() !== 'group';
-	// }, this);
-	// this.visibleImportExport = ko.computed(function () {
-	// 	return this.aExportData.length > 0;
-	// }, this);
+	this.enableExport = ko.computed(function () {
+		return this.contactCount() > 0;
+	}, this);
+	this.aExportData = [];
+	_.each(Settings.ImportExportFormats, function (sFormat) {
+		if (Types.isNonEmptyString(sFormat))
+		{
+			this.aExportData.push({
+				'css': sFormat.toLowerCase(),
+				'text': TextUtils.i18n('%MODULENAME%/ACTION_EXPORT_AS', {'FORMAT': sFormat.toUpperCase()}),
+				'command': Utils.createCommand(this, function () { this.executeExport(sFormat); }, this.enableExport)
+			});
+		}
+	}, this);
+	this.visibleCreateOrImportText = ko.computed(function () {
+		return this.selectedStorage() !== 'all' && this.selectedStorage() !== 'shared' &&
+				this.selectedStorage() !== 'team' && this.selectedStorage() !== 'group';
+	}, this);
+	this.visibleImportExport = ko.computed(function () {
+		return this.aExportData.length > 0;
+	}, this);
 	
-	// this.infoCreateOrImport = this.getCreateOrImportInfo();
-	// this.listChanged = ko.computed(function () {
-	// 	return [
-	// 		this.selectedStorage(),
-	// 		this.currentGroupUUID(),
-	// 		this.search(),
-	// 		this.oPageSwitcher.currentPage(),
-	// 		this.oPageSwitcher.perPage()
-	// 	];
-	// }, this);
+	this.infoCreateOrImport = this.getCreateOrImportInfo();
+	this.listChanged = ko.computed(function () {
+		return [
+			this.selectedStorage(),
+			this.currentGroupUUID(),
+			this.search(),
+			this.oPageSwitcher.currentPage(),
+			this.oPageSwitcher.perPage()
+		];
+	}, this);
 	
-	// this.bRefreshContactList = false;
+	this.bRefreshContactList = false;
 
-	// const afterRemoveContactPgpKeyHandler = () => {
-	// 	if (this.selectedContact() && this.selectedContact().edited()) {
-	// 		this.selectedContact().publicPgpKey('');
-	// 		const selectedContactListItem = this.collection().find(item => item.UUID() === this.selectedContact().uuid());
-	// 		if (selectedContactListItem) {
-	// 			selectedContactListItem.HasPgpPublicKey(false);
-	// 		}
-	// 	} else {
-	// 		this.onUpdateContactResponse({ Result: true });
-	// 	}
-	// };
-	// this.oPgpKeyControlsView = ModulesManager.run('OpenPgpWebclient', 'getPgpKeyControlsView',
-	// 		[afterRemoveContactPgpKeyHandler]
-	// );
+	const afterRemoveContactPgpKeyHandler = () => {
+		if (this.selectedContact() && this.selectedContact().edited()) {
+			this.selectedContact().publicPgpKey('');
+			const selectedContactListItem = this.collection().find(item => item.UUID() === this.selectedContact().uuid());
+			if (selectedContactListItem) {
+				selectedContactListItem.HasPgpPublicKey(false);
+			}
+		} else {
+			this.onUpdateContactResponse({ Result: true });
+		}
+	};
+	this.oPgpKeyControlsView = ModulesManager.run('OpenPgpWebclient', 'getPgpKeyControlsView',
+			[afterRemoveContactPgpKeyHandler]
+	);
 
-	// App.broadcastEvent('%ModuleName%::ConstructView::after', {'Name': this.ViewConstructorName, 'View': this});
+	App.broadcastEvent('%ModuleName%::ConstructView::after', {'Name': this.ViewConstructorName, 'View': this});
 }
 
 _.extendOwn(CContactsView.prototype, CAbstractScreenView.prototype);
@@ -977,7 +971,6 @@ CContactsView.prototype.groupsInContactView = function (oContact)
 
 CContactsView.prototype.onShow = function ()
 {
-	return;
 	this.selector.useKeyboardKeys(true);
 	
 	this.oPageSwitcher.show();
@@ -992,7 +985,6 @@ CContactsView.prototype.onShow = function ()
 
 CContactsView.prototype.onHide = function ()
 {
-	return;
 	this.selector.listCheckedOrSelected(false);
 	this.selector.useKeyboardKeys(false);
 	this.selectedItem(null);
@@ -1007,23 +999,6 @@ CContactsView.prototype.onHide = function ()
 
 CContactsView.prototype.onBind = function ()
 {
-	// import("vue").then(({ createApp }) => {
-	// 	// Use the createApp function from VueJs
-	// 	const App = import('./App.vue').then(function () {
-	// 		console.log(arguments)
-	// 	});
-	// 	console.log(App);
-	// 	const app = createApp(App).mount('#vuejs_container');
-	// });
-	import("./main.js").then(function (module) {
-		
-	});
-	
-	console.log('onBind');
-
-	// createApp(App).mount('#app')
-
-	return;
 	this.selector.initOnApplyBindings(
 		'.contact_sub_list .item',
 		'.contact_sub_list .selected.item',
@@ -1202,7 +1177,6 @@ CContactsView.prototype.onViewGroupClick = function (mData)
  */
 CContactsView.prototype.onRoute = function (aParams)
 {
-	return;
 	var
 		oParams = LinksUtils.parseContacts(aParams),
 		bGroupOrSearchChanged = this.selectedStorage() !== oParams.Storage || this.currentGroupUUID() !== oParams.GroupUUID || this.search() !== oParams.Search,
