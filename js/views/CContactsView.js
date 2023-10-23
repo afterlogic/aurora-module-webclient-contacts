@@ -1156,7 +1156,8 @@ CContactsView.prototype.editGroup = function (oData)
  */
 CContactsView.prototype.changeGroupType = function (sStorage)
 {
-	this.searchInput('');
+  	this.search('');
+  	this.searchInput('');
 	this.changeRouting({ Storage: sStorage, GroupUUID: '' });
 };
 
@@ -1165,7 +1166,8 @@ CContactsView.prototype.changeGroupType = function (sStorage)
  */
 CContactsView.prototype.onViewGroupClick = function (mData)
 {
-	this.searchInput('');
+  	this.search('');
+  	this.searchInput('');
 	var sUUID = (typeof mData === 'string') ? mData : mData.UUID();
 	this.changeRouting({ Storage: 'group', GroupUUID: sUUID });
 };
