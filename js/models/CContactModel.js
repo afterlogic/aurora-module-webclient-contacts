@@ -140,6 +140,14 @@ function CContactModel()
 	this.otherBirthDay = ko.observable(0);
 	this.otherBirthYear = ko.observable(0);
 	this.otherNotes = ko.observable('');
+	this.otherNotes.subscribe(function () {
+		const $textareaDom = this.otherNotesDom()
+		if($textareaDom) {
+			$textareaDom[0].style.height = 'auto';
+			$textareaDom[0].style.height = ($textareaDom[0].scrollHeight) + 'px';
+		}
+	}, this)
+	this.otherNotesDom = ko.observable(null)
 	this.etag = ko.observable('');
 
 	this.isOpenPgpEnabled = ModulesManager.isModuleIncluded('OpenPgpWebclient');
