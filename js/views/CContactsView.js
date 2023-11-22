@@ -279,9 +279,12 @@ function CContactsView()
 	this.isEnableRemoveContactsFromGroup = this.isCheckedOrSelected;
 	this.isEnableDeleting = this.isCheckedOrSelected;
 	this.isDeleteVisible = ko.computed(function () {
-		return this.showPersonalContacts() && this.selectedStorage() === 'personal'
-				|| this.showSharedToAllContacts() && this.selectedStorage() === 'shared'
-				|| this.isAddressBookSelected() && !this.isSelectedAddressbookSharedForReading();
+		return !this.isTeamStorageSelected()
+		&& (
+			(this.showPersonalContacts() && this.selectedStorage() === 'personal')
+			|| (this.showSharedToAllContacts() && this.selectedStorage() === 'shared')
+			|| (this.isAddressBookSelected() && !this.isSelectedAddressbookSharedForReading())
+		);
 	}, this);
 	this.isEnableSharing = this.isCheckedOrSelected;
 	this.visibleShareCommand = ko.computed(function () {
