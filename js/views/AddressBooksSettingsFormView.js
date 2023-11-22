@@ -8,6 +8,7 @@ var
 	
 	Ajax = require('%PathToCoreWebclientModule%/js/Ajax.js'),
 	Api = require('%PathToCoreWebclientModule%/js/Api.js'),
+	App = require('%PathToCoreWebclientModule%/js/App.js'),
 	ConfirmPopup = require('%PathToCoreWebclientModule%/js/popups/ConfirmPopup.js'),
 	Popups = require('%PathToCoreWebclientModule%/js/Popups.js'),
 	ModulesManager = require('%PathToCoreWebclientModule%/js/ModulesManager.js'),
@@ -43,7 +44,8 @@ CAddressBooksSettingsFormView.prototype.populate = function ()
 	Ajax.send('Contacts', 'GetStorages', {}, function (oResponse) {
 		this.loading(false);
 		if (_.isArray(oResponse && oResponse.Result)) {
-			this.addressBooks(oResponse.Result.filter(addressbook => addressbook.Editable));
+			const userPublicId = App.getUserPublicId();
+			this.addressBooks(oResponse.Result.filter(addressbook => addressbook?.Display && addressbook?.Owner === userPublicId));
 		} else {
 			Api.showErrorByCode(oResponse);
 		}
