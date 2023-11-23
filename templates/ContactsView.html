@@ -49,7 +49,7 @@
 							</span>
 						</span>
 						<span class="data fadeout">
-							<span class="group" data-bind="visible: $parent.selectedStorage() === 'all' || $parent.selectedStorage() === 'group', css: sStorage"></span>
+							<span class="group" data-bind="visible: $parent.selectedStorage() === 'all' || $parent.selectedStorage() === 'group', css: {'team': bTeam, 'personal': !bTeam}"></span>
 							<span class="key" data-bind="visible: isOpenPgpEnabled && HasPgpPublicKey()"></span>
 							<span class="me" data-bind="visible: ItsMe(), i18n: {'key': '%MODULENAME%/LABEL_ITS_ME'}"></span>
 							<span class="name" data-bind="text: Name(), visible: !!Name()"></span>

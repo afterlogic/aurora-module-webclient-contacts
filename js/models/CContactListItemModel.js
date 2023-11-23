@@ -56,8 +56,8 @@ CContactListItemModel.prototype.parse = function (oData)
 	this.bIsOrganization = !!oData.IsOrganization;
 	this.bReadOnly = !!oData.ReadOnly;
 	this.bItsMe = !!oData.ItsMe;
-	this.bTeam = oData.Storage === 'team';
-	this.bSharedToAll =  oData.Storage === 'shared';
+	this.bTeam = !!oData.IsTeam;
+	this.bSharedToAll = oData.Storage === 'shared';
 	this.sStorage = oData.Storage;
 
 	this.HasPgpPublicKey(!!oData.HasPgpPublicKey);
