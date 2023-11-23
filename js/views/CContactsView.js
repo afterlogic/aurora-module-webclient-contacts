@@ -1344,8 +1344,6 @@ CContactsView.prototype.viewGroup = function (sGroupUUID)
 		this.selectedItem(this.oGroupModel);
 		this.selector.itemSelected(null);
 		this.selector.listCheckedOrSelected(false);
-		
-		Ajax.send('GetGroupEvents', { 'UUID': sGroupUUID }, this.onGetGroupEventsResponse, this);
 	}
 	else
 	{
@@ -1638,11 +1636,6 @@ CContactsView.prototype.viewAllMails = function ()
 	}
 };
 
-CContactsView.prototype.viewEvent = function (calendarId, eventId, start)
-{
-	Routing.goDirectly(['calendar', calendarId, eventId, start]);
-};
-
 /**
  * @param {Object} oResponse
  * @param {Object} oRequest
@@ -1833,19 +1826,6 @@ CContactsView.prototype.onGetGroupResponse = function (oResponse, oRequest)
 	else
 	{
 		Api.showErrorByCode(oResponse);
-	}
-};
-
-/**
- * @param {Object} oResponse
- * @param {Object} oRequest
- */
-CContactsView.prototype.onGetGroupEventsResponse = function (oResponse, oRequest)
-{
-	if (oResponse.Result)
-	{
-		var Events = oResponse.Result;
-		this.oGroupModel.events(Events);
 	}
 };
 

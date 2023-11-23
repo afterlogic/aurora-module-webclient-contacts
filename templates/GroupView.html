@@ -86,17 +86,6 @@
 						<span class="value" data-bind="text: web"></span>
 					</div>
 				</div>
-
-			</div>
-			<div class="fields">
-				<div class="items_section" data-bind="foreach: events">
-					<div>
-						<span class="value" data-bind="text: subject"></span>
-						<br/>
-						<span class="link" data-bind="text: '(' + start + ' - ' + end + ')', click: function(oEvent) { $root.viewEvent(oEvent.calendarId, oEvent.id, oEvent.start); }"></span>
-						<br/><br/>
-					</div>
-				</div>
 			</div>
 		</div>
 		<div class="fields_switcher" data-bind="visible: $root.bAllowSearchMessagesInInbox && $root.selectedGroupEmails().length > 0">

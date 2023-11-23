@@ -49,8 +49,6 @@ function CGroupModel()
 			'COUNT' : iCount
 		}, null, iCount) : '';
 	}, this);
-	
-	this.events = ko.observableArray([]);
 }
 
 CGroupModel.prototype.getFullEmail = function ()
@@ -79,8 +77,7 @@ CGroupModel.prototype.clear = function ()
 	this.state('');
 	this.street('');
 	this.web('');
-	this.zip('');	
-	this.events([]);
+	this.zip('');
 };
 
 CGroupModel.prototype.populate = function (oGroup)
