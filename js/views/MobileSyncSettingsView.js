@@ -21,16 +21,13 @@ CMobileSyncSettingsView.prototype.ViewTemplate = '%ModuleName%_MobileSyncSetting
  */
 CMobileSyncSettingsView.prototype.populate = function (oDav)
 {
-	if (oDav.Contacts) {
-		const aAddressBooks = [];
-		Settings.Storages.forEach((oAddressBook) => {
-			if (oAddressBook.DisplayName) {
-				aAddressBooks.push({
-					'DisplayName': oAddressBook.DisplayName,
-					'DavUrl': oDav.Contacts[oAddressBook.Id] || ''
-				})
-			}
-		});
+	if (Array.isArray(oDav.Contacts)) {
+		const aAddressBooks = oDav.Contacts.map((oItem) => {
+			return {
+				'DisplayName': oItem.Name,
+				'DavUrl': oItem.Url
+			};
+		})
 
 		this.AddressBooks(aAddressBooks);
 	}
