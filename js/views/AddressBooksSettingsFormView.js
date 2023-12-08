@@ -45,7 +45,9 @@ CAddressBooksSettingsFormView.prototype.populate = function ()
 		this.loading(false);
 		if (_.isArray(oResponse && oResponse.Result)) {
 			const userPublicId = App.getUserPublicId();
-			this.addressBooks(oResponse.Result.filter(addressbook => addressbook?.Display && addressbook?.Owner === userPublicId));
+			this.addressBooks(oResponse.Result.filter(addressbook => {
+				return addressbook?.Display && addressbook?.Owner === userPublicId && addressbook.Id !== 'personal';
+			}));
 		} else {
 			Api.showErrorByCode(oResponse);
 		}
