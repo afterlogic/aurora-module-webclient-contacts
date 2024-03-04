@@ -85,8 +85,10 @@ function CContactsView()
 	this.isAddressBookSelected = ko.observable(false);
 	this.isSelectedAddressbookSharedForReading = ko.observable(false);
 	this.isTeamStorageSelected = ko.observable(false);
+	this.isCustomAddressBookSelected = ko.observable(false);
 	this.disableDropToPersonal = ko.observable(false);
 	this.disableDropToSharedWithAll = ko.observable(false);
+	this.disableDropToCustomAddressBook = ko.observable(false);
 	this.selectedStorageValue = ko.observable('');
 	this.selectedStorage = ko.computed({
 		'read': function () {
@@ -109,9 +111,13 @@ function CContactsView()
 						selectedAddressbook && selectedAddressbook.Shared
 						&& selectedAddressbook.Access === Enums.SharedAddressbookAccess.Read
 				);
+				const addressBookParts = this.selectedStorageValue().split('-');
+				this.isCustomAddressBookSelected(addressBookParts.length > 0 && addressBookParts[0] === 'addressbook');
+
 				this.isTeamStorageSelected(this.selectedStorageValue() === 'team');
-				this.disableDropToPersonal(this.selectedStorageValue() !== 'shared');
-				this.disableDropToSharedWithAll(this.selectedStorageValue() !== 'personal');
+				this.disableDropToPersonal(this.selectedStorageValue() === 'team');
+				this.disableDropToSharedWithAll(this.selectedStorageValue() === 'team');
+				this.disableDropToCustomAddressBook(this.selectedStorageValue() === 'team');
 			}
 		},
 		'owner': this
@@ -1479,6 +1485,25 @@ CContactsView.prototype.contactsDropToGroupType = function (sDropStorage, oEvent
 	}
 };
 
+CContactsView.prototype.contactsDropToAddressbook = function (sDropStorage, oEvent, oUi)
+{
+	var	
+		oHelper = oUi && oUi.helper,
+		sDragStorage = oHelper && oHelper.data('drag-contatcs-storage') || null,
+		aUids = oHelper && oHelper.data('drag-contatcs-uids') || null
+	;
+
+	if (null !== aUids && null !== sDragStorage && sDropStorage !== sDragStorage)
+	{
+		Utils.uiDropHelperAnim(oEvent, oUi);
+
+		Ajax.send('MoveContactsToStorage', {'FromStorage': null, 'ToStorage': sDropStorage, 'UUIDs': aUids}, function () {
+			this.selector.listCheckedOrSelected(false);
+			this.requestContactList();
+		}, this);
+	}
+};
+
 CContactsView.prototype.searchFocus = function ()
 {
 	if (this.selector.useKeyboardKeys() && !Utils.isTextFieldFocused())
@@ -1734,25 +1759,20 @@ CContactsView.prototype.executeShare = function ()
 	
 	aCheckedUUIDs = _.compact(aCheckedUUIDs);
 	
-	if (0 < aCheckedUUIDs.length)
-	{
+	if (0 < aCheckedUUIDs.length) {
 		_.each(aChecked, function (oContact) {
-			if (oContact)
-			{
+			if (oContact) {
 				ContactsCache.clearInfoAboutEmail(oContact.Email());
 			}
 		}, this);
 		
-		if (!bSelectedStorageAll)
-		{
-			if (-1 < $.inArray(this.selectedContact(), aChecked))
-			{
+		if (!bSelectedStorageAll) {
+			if (-1 < $.inArray(this.selectedContact(), aChecked)) {
 				this.selectedContact(null);
 			}
 				
 			_.each(this.collection(), function (oContact) {
-				if (-1 < $.inArray(oContact, aChecked))
-				{
+				if (-1 < $.inArray(oContact, aChecked)) {
 					oContact.deleted(true);
 				}
 			});
@@ -1764,18 +1784,14 @@ CContactsView.prototype.executeShare = function ()
 			}.bind(this), 500);
 		}
 
-		if ('shared' === this.selectedStorage())
-		{
+		if ('shared' === this.selectedStorage()) {
 			this.recivedAnimPersonal(true);
-		}
-		else
-		{
+		} else {
 			this.recivedAnimShared(true);
 		}
 	
 		Ajax.send('UpdateSharedContacts', { 'UUIDs': aCheckedUUIDs }, function () {
-			if (bSelectedStorageAll)
-			{
+			if (bSelectedStorageAll) {
 				this.selector.listCheckedOrSelected(false);
 				this.requestContactList();
 			}

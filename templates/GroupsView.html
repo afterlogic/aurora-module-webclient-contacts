@@ -17,7 +17,7 @@
 					click: $parent.gotoContactList">
 				<span class="title" id="selenium_contacts_personal_button" data-bind="
 						css: {'recivedAnim': recivedAnimPersonal()},
-						droppable: {valueFunc: function (oEvent, oUi) { $root.contactsDropToGroupType('personal', oEvent, oUi); }, switchObserv: disableDropToPersonal},
+						droppable: {valueFunc: function (oEvent, oUi) { $root.contactsDropToAddressbook('personal', oEvent, oUi); }, switchObserv: disableDropToPersonal},
 						click: function () { changeGroupType('personal'); }">
 					<span class="name fadeout">
 						<span class="icon type1"></span>
@@ -36,7 +36,7 @@
 					click: $parent.gotoContactList">
 				<span class="title" data-bind="
 						css: {'recivedAnim': recivedAnimShared()},
-						droppable: {valueFunc: function (oEvent, oUi) { $root.contactsDropToGroupType('shared', oEvent, oUi); }, switchObserv: disableDropToSharedWithAll},
+						droppable: {valueFunc: function (oEvent, oUi) { $root.contactsDropToAddressbook('shared', oEvent, oUi); }, switchObserv: disableDropToSharedWithAll},
 						click: function () { changeGroupType('shared'); }">
 					<span class="name fadeout">
 						<span class="icon type3"></span>
@@ -62,7 +62,10 @@
 						visible: Display, 
 						css: {'selected': $parent.selectedStorage() === Id},
 						click: $parents[0].gotoContactList">
-					<span class="title" data-bind="click: function () { $parent.changeGroupType(Id); }, css: {'recivedAnim': $parent.recivedAnimTeam()}">
+					<span class="title" data-bind="
+						click: function () { $parent.changeGroupType(Id); },
+						droppable: {valueFunc: function (oEvent, oUi) { $root.contactsDropToAddressbook(Id, oEvent, oUi); }, switchObserv: $root.disableDropToCustomAddressBook},
+						css: {'recivedAnim': $parent.recivedAnimTeam()}">
 						<span class="name fadeout">
 							<span class="icon type1"></span>
 							<span class="text animGoal" data-bind="text: DisplayName"></span>
