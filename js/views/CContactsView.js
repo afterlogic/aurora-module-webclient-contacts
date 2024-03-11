@@ -1497,7 +1497,7 @@ CContactsView.prototype.contactsDropToAddressbook = function (sDropStorage, oEve
 	{
 		Utils.uiDropHelperAnim(oEvent, oUi);
 
-		Ajax.send('MoveContactsToStorage', {'FromStorage': null, 'ToStorage': sDropStorage, 'UUIDs': aUids}, function () {
+		Ajax.send('MoveContactsToStorage', {'FromStorage': sDragStorage, 'ToStorage': sDropStorage, 'UUIDs': aUids}, function () {
 			this.selector.listCheckedOrSelected(false);
 			this.requestContactList();
 		}, this);
