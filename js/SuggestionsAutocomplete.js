@@ -23,8 +23,8 @@ function Callback(oRequest, fResponse, sExceptEmail, sStorage, bWithGroups)
 		oParameters = {
 			'Search': sTerm,
 			'Storage': sStorage,
-			'SortField': Enums.ContactSortField.Frequency,
-			'SortOrder': 1,
+			'SortField': Enums.ContactSortField.Name, // Enums.ContactSortField.Frequency,
+			'SortOrder': 0, // 0 - ASC, 1 - DESC
 			'WithGroups': bWithGroups ? bWithGroups : false,
 			'WithoutTeamContactsDuplicates': true
 		}
@@ -73,9 +73,7 @@ function Callback(oRequest, fResponse, sExceptEmail, sStorage, bWithGroups)
 				null;
 			});
 
-			aList = _.sortBy(_.compact(aList), function(oItem){
-				return -oItem.frequency;
-			});
+			aList = _.compact(aList)
 		}
 
 		fResponse(aList);
