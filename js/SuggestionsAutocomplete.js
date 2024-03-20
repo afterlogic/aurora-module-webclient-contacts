@@ -4,9 +4,7 @@ var
 	_ = require('underscore'),
 	$ = require('jquery'),
 	
-	AddressUtils = require('%PathToCoreWebclientModule%/js/utils/Address.js'),
-	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
-	
+	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),	
 	Ajax = require('modules/%ModuleName%/js/Ajax.js')
 ;
 
@@ -80,70 +78,6 @@ function Callback(oRequest, fResponse, sExceptEmail, sStorage, bWithGroups)
 
 	});
 }
-
-///**
-// * @param {string} sStorage
-// * @param {object} oRequest
-// * @param {function} fResponse
-// */
-//function StorageCallback(sStorage, oRequest, fResponse)
-//{
-//	var
-//		sTerm = oRequest.term,
-//		oParameters = {
-//			'Search': sTerm,
-//			'SortField': Enums.ContactSortField.Frequency,
-//			'SortOrder': 1,
-//			'Storage': sStorage
-//		}
-//	;
-//
-//	Ajax.send('GetContacts', oParameters, function (oResponse) {
-//		var aList = [];
-//		if (oResponse && oResponse.Result && oResponse.Result.List)
-//		{
-//			aList = _.map(oResponse.Result.List, function (oItem) {
-//				var
-//					sLabel = '',
-//					sValue = oItem.ViewEmail
-//				;
-//
-//				if (oItem.IsGroup)
-//				{
-//					if (oItem.FullName && 0 < $.trim(oItem.FullName).length)
-//					{
-//						sLabel = '"' + oItem.FullName + '" (' + oItem.ViewEmail + ')';
-//					}
-//					else
-//					{
-//						sLabel = '(' + oItem.ViewEmail + ')';
-//					}
-//				}
-//				else
-//				{
-//					sLabel = AddressUtils.getFullEmail(oItem.FullName, oItem.ViewEmail);
-//					sValue = sLabel;
-//				}
-//
-//				return {
-//					'label': sLabel,
-//					'value': sValue,
-//					'frequency': oItem.Frequency,
-//					'id': oItem.UUID,
-//					'team': oItem.Storage === 'team',
-//					'sharedToAll': oItem.Storage === 'shared'
-//				};
-//			});
-//
-//			aList = _.sortBy(_.compact(aList), function(oItem) {
-//				return -oItem.frequency;
-//			});
-//		}
-//
-//		fResponse(aList);
-//
-//	});
-//}
 
 /**
  * @param {object} oRequest
