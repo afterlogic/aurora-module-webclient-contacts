@@ -68,20 +68,11 @@ module.exports = {
 
 	getSortConfig: function (config)
 	{
-		if (config.Allow) {
-			return {
-				Allow: true,
-				DisplayOptions: config.DisplayOptions || [],
-				DefaultSortBy: Types.pEnum(Enums.ContactSortField[config.DefaultSortBy], Enums.ContactSortField, Enums.ContactSortField.Name),
-				DefaultSortOrder: Types.pEnum(Enums.SortOrder[config.DefaultSortOrder], Enums.SortOrder, Enums.SortOrder.Desc)
-			};
-		} else {
-			return {
-				Allow: false,
-				DisplayOptions: config.DisplayOptions || [],
-				DefaultSortBy: Enums.ContactSortField.Filename,
-				DefaultSortOrder: Enums.SortOrder.Desc
-			};
+		return {
+			Allow: Types.pBool(config?.Allow),
+			DisplayOptions: config?.DisplayOptions || [],
+			DefaultSortBy: Types.pEnum(Enums.ContactSortField[config?.DefaultSortBy], Enums.ContactSortField, Enums.ContactSortField.Name),
+			DefaultSortOrder: Types.pEnum(Enums.SortOrder[config?.DefaultSortOrder], Enums.SortOrder, Enums.SortOrder.Desc),
 		}
 	}
 };
