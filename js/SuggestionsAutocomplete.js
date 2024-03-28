@@ -21,7 +21,7 @@ function Callback(oRequest, fResponse, sExceptEmail, sStorage, bWithGroups)
 		oParameters = {
 			'Search': sTerm,
 			'Storage': sStorage,
-			'SortField': Enums.ContactSortField.LastName, // Enums.ContactSortField.Frequency,
+			'SortField': Enums.ContactSortField.Name, // Enums.ContactSortField.Frequency,
 			'SortOrder': 0, // 0 - ASC, 1 - DESC
 			'WithGroups': bWithGroups ? bWithGroups : false,
 			'WithoutTeamContactsDuplicates': true
