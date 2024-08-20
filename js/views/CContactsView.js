@@ -816,7 +816,9 @@ CContactsView.prototype.executeExport = function (sFormat)
 		aContactUUIDs = _.map(this.selector.listChecked(), function (oContact) {
 			return oContact.sUUID;
 		}),
-		sStorage = this.selectedStorage()
+		sStorage = this.selectedStorage(),
+		sGroupUUID = this.currentGroupUUID(),
+		filename = 'export'
 	;
 	if (sStorage === 'group')
 	{
@@ -828,8 +830,20 @@ CContactsView.prototype.executeExport = function (sFormat)
 		'GroupUUID': this.currentGroupUUID(),
 		'ContactUUIDs': aContactUUIDs
 	}, function (oResponse) {
+
+		filename = this.getStorageDisplayName(sStorage);
+
+		if (sGroupUUID) {
+			var oGroup = _.find(this.groupFullCollection(), function (oItem) {
+				return oItem && oItem.UUID() === sGroupUUID;
+			});
+			if (oGroup) {
+				filename = oGroup.Name();
+			}
+		}
+
 		var oBlob = new Blob([oResponse.ResponseText], {'type': 'text/plain;charset=utf-8'});
-		FileSaver.saveAs(oBlob, this.getStorageDisplayName(sStorage) + '.' + sFormat, true);
+		FileSaver.saveAs(oBlob, filename + '.' + sFormat, true);
 	}, this, { Format: 'Raw' });
 };
 
