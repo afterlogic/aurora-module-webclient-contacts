@@ -55,6 +55,16 @@ module.exports = function (oAppData) {
 		}
 	;
 
+	let contactsViewInstance = null;
+
+	const getContactsViewInstance = () => {
+		if(!contactsViewInstance) {
+			const CContactsView = require('modules/%ModuleName%/js/views/CContactsView.js');
+			contactsViewInstance = new CContactsView();
+		}
+		return contactsViewInstance;
+	};
+
 	EnumsDeclarator.init(oAppData, Settings.ServerModuleName);
 	Settings.init(oAppData);
 
@@ -102,14 +112,26 @@ module.exports = function (oAppData) {
 						]);
 					}
 					fRegisterMessagePaneControllerOnStart();
+
+					App.broadcastEvent('RegisterNewItemElement', {
+						'item': {
+							'title': TextUtils.i18n('%MODULENAME%/ACTION_NEW_CONTACT'),
+							'handler': () => {
+								const contactsViewInstance = getContactsViewInstance();
+								const command = contactsViewInstance.newContactCommand
+								if (command.enabled()) {
+									command();
+								}
+							},
+							'hash': Settings.HashModuleName
+						},
+						'name': '%ModuleName%_NewContact',
+						'order': 3,
+                        'column': 1
+					});
 				},
 				getScreens: function () {
-					var oScreens = {};
-					oScreens[Settings.HashModuleName] = function () {
-						var CContactsView = require('modules/%ModuleName%/js/views/CContactsView.js');
-						return new CContactsView();
-					};
-					return oScreens;
+					return { [Settings.HashModuleName]: getContactsViewInstance };
 				},
 				getHeaderItem: function () {
 					return {
