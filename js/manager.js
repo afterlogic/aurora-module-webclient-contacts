@@ -114,18 +114,18 @@ module.exports = function (oAppData) {
 					fRegisterMessagePaneControllerOnStart();
 
 					App.broadcastEvent('RegisterNewItemElement', {
-						'item': {
-							'title': TextUtils.i18n('%MODULENAME%/ACTION_NEW_CONTACT'),
-							'handler': () => {
+						'title': TextUtils.i18n('%MODULENAME%/ACTION_NEW_CONTACT'),
+						'handler': () => {
+							window.location.hash = Settings.HashModuleName;
+							setTimeout(() => {
 								const contactsViewInstance = getContactsViewInstance();
 								const command = contactsViewInstance.newContactCommand
 								if (command.enabled()) {
 									command();
 								}
-							},
-							'hash': Settings.HashModuleName
+							}, 500)
 						},
-						'name': '%ModuleName%_NewContact',
+						'className': 'item_contacts',
 						'order': 3,
                         'column': 1
 					});
