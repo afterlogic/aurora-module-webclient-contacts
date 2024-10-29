@@ -45,7 +45,7 @@
 								<input type="checkbox" data-bind="checked: checked" />
 							</label>-->
 							<span class="custom_checkbox" data-bind="click: function () { checked(!checked()); }, css: {'checked': checked()}">
-								<span class="icon"></span>
+								<span class="icon" data-bind="attr: { 'data-initials': initials }"></span>
 							</span>
 						</span>
 						<span class="data fadeout">

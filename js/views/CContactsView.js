@@ -1641,6 +1641,20 @@ CContactsView.prototype.onGetContactsResponse = function (oResponse, oRequest)
 			});
 		}
 
+		_.each(aNewCollection, function (oContactItem) {
+			oContactItem.initials = '';
+
+			if (typeof oContactItem.sName === 'string') {
+				const words = oContactItem.sName.trim().split(/\s+/); // split string into an array of words based on spaces.
+
+				if (words.length === 1) {
+					oContactItem.initials = words[0][0];
+				} else if (words.length > 1) {
+					oContactItem.initials = words[0][0] + words[1][0];
+				}
+			}
+		});
+
 		this.collection(aNewCollection);
 		this.oPageSwitcher.setCount(iContactCount);
 		this.contactCount(iContactCount);
