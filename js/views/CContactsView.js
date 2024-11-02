@@ -1641,20 +1641,6 @@ CContactsView.prototype.onGetContactsResponse = function (oResponse, oRequest)
 			});
 		}
 
-		_.each(aNewCollection, function (oContactItem) {
-			oContactItem.initials = '';
-
-			if (typeof oContactItem.sName === 'string') {
-				const words = oContactItem.sName.trim().split(/\s+/); // split string into an array of words based on spaces.
-
-				if (words.length === 1) {
-					oContactItem.initials = words[0][0];
-				} else if (words.length > 1) {
-					oContactItem.initials = words[0][0] + words[1][0];
-				}
-			}
-		});
-
 		this.collection(aNewCollection);
 		this.oPageSwitcher.setCount(iContactCount);
 		this.contactCount(iContactCount);
@@ -1990,5 +1976,22 @@ CContactsView.prototype.addPublicPgpKey = function () {
 		onSuccessCallback
 	}]);
 };
+
+CContactsView.prototype.getInitials = function (Ccontact) {
+    let initials = '';
+
+    if (typeof Ccontact.sName === 'string' && Ccontact.sName.trim() !== '') {
+        const words = Ccontact.sName.trim().split(/\s+/); // split string into an array of words based on spaces.
+
+        if (words.length === 1) {
+            initials = words[0].slice(0, 2);
+        } else if (words.length > 1) {
+            initials = words[0][0] + words[1][0];
+        }
+    } else if (typeof Ccontact.sEmail === 'string' && Ccontact.sEmail.trim() !== '') {
+        initials = Ccontact.sEmail.trim().slice(0, 2);
+    }
+    return initials;
+}
 
 module.exports = CContactsView;
