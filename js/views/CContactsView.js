@@ -661,7 +661,8 @@ CContactsView.prototype.executeNewContact = function ()
 	if (this.showPersonalContacts())
 	{
 		var sGroupUUID = (this.selectedStorage() === 'group') ? this.currentGroupUUID() : '';
-		this.changeRouting({ GroupUUID: sGroupUUID, Action: 'create-contact' });
+		var sStorage = this.selectedStorage() ? this.selectedStorage() : 'personal';
+		this.changeRouting({ GroupUUID: sGroupUUID, Storage: sStorage, Action: 'create-contact' });
 	}
 };
 

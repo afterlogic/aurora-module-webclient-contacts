@@ -8,6 +8,7 @@ module.exports = function (oAppData) {
 		
 		App = require('%PathToCoreWebclientModule%/js/App.js'),
 		ModulesManager = require('%PathToCoreWebclientModule%/js/ModulesManager.js'),
+		Routing = require('%PathToCoreWebclientModule%/js/Routing.js'),
 		
 		ContactsCache = require('modules/%ModuleName%/js/Cache.js'),
 		EnumsDeclarator = require('modules/%ModuleName%/js/enums.js'),
@@ -116,18 +117,34 @@ module.exports = function (oAppData) {
 					App.broadcastEvent('RegisterNewItemElement', {
 						'title': TextUtils.i18n('%MODULENAME%/ACTION_NEW_CONTACT'),
 						'handler': () => {
-							window.location.hash = Settings.HashModuleName;
 							const contactsViewInstance = getContactsViewInstance();
+							const command = contactsViewInstance.newContactCommand;
 
-							const loadingListSubscription = contactsViewInstance.loadingList.subscribe((isListLoading) => {
-								if(!isListLoading) {
-									const command = contactsViewInstance.newContactCommand;
-									if (command.enabled()) {
-										command()
-									};
-									loadingListSubscription.dispose();
+							// check if we are on contacts screen or not
+							if (!window.location.hash.startsWith('#' + Settings.HashModuleName)) {
+								// if team book was selected before we need to redirect to personal contacts
+								if (contactsViewInstance.selectedStorage() === 'team') {
+									Routing.setHash(Utils.getContacts('personal', '', '', 1, '', 'create-contact'));
+								} else {
+									window.location.hash = Settings.HashModuleName
 								}
-							})
+							}
+
+							if (contactsViewInstance.showPersonalContacts()) {
+								if (command.canExecute()) {
+									command()
+								}
+							} else {
+								const loadingListSubscription = contactsViewInstance.showPersonalContacts.subscribe((v) => {
+									if(v) {
+										const command = contactsViewInstance.newContactCommand
+										if (command.canExecute()) {
+											command()
+										}
+										loadingListSubscription.dispose()
+									}
+								})
+							}
 						},
 						'className': 'item_contacts',
 						'order': 3,
