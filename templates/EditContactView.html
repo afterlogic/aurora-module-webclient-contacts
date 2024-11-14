@@ -73,7 +73,7 @@
 							<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_NOT_SPECIFIED_YET'}"></span>
 						</span>
 						<span class="value" data-bind="visible: 0 < emails().length">
-							<select data-bind="options: emails, optionsText: 'text', optionsValue: 'value', value: mainPrimaryEmail"></select>
+							<select class="input" data-bind="options: emails, optionsText: 'text', optionsValue: 'value', value: mainPrimaryEmail"></select>
 						</span>
 					</div>
 					<div class="row">
@@ -302,9 +302,9 @@
 							<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_BIRTHDAY'}"></span>:
 						</span>
 						<span class="value">
-							<select data-bind="options: birthMonthSelect, optionsText: 'text', optionsValue: 'value', value: otherBirthMonth"></select>
-							<select data-bind="options: birthDaySelect, optionsText: 'text', optionsValue: 'value', value: otherBirthDay"></select>
-							<select data-bind="options: birthYearSelect, optionsText: 'text', optionsValue: 'value', value: otherBirthYear"></select>
+							<select class="input" style="width: auto" data-bind="options: birthMonthSelect, optionsText: 'text', optionsValue: 'value', value: otherBirthMonth"></select>
+							<select class="input" style="width: auto" data-bind="options: birthDaySelect, optionsText: 'text', optionsValue: 'value', value: otherBirthDay"></select>
+							<select class="input" style="width: auto" data-bind="options: birthYearSelect, optionsText: 'text', optionsValue: 'value', value: otherBirthYear"></select>
 						</span>
 					</div>
 					<div class="row">
