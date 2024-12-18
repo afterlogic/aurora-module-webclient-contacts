@@ -31,6 +31,12 @@
 							</span>
 							<span class="value" data-bind="text: lastName"></span>
 						</div>
+						<div class="row" data-bind="visible: '' !== nickName()">
+							<span class="label">
+								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_NICK_NAME'}"></span>:
+							</span>
+							<span class="value" data-bind="text: nickName"></span>
+						</div>
 						<div class="row" data-bind="visible: '' !== skype()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_SKYPE'}"></span>:
@@ -85,17 +91,17 @@
 							</span>
 							<span class="value" data-bind="text: personalState"></span>
 						</div>
-						<div class="row country" data-bind="visible: '' !== personalCountry()">
-							<span class="label">
-								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_COUNTRY_REGION'}"></span>:
-							</span>
-							<span class="value" data-bind="text: personalCountry"></span>
-						</div>
 						<div class="row zipcode" data-bind="visible: '' !== personalZipCode()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_ZIP_CODE'}"></span>:
 							</span>
 							<span class="value" data-bind="text: personalZipCode"></span>
+						</div>
+						<div class="row country" data-bind="visible: '' !== personalCountry()">
+							<span class="label">
+								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_COUNTRY_REGION'}"></span>:
+							</span>
+							<span class="value" data-bind="text: personalCountry"></span>
 						</div>
 					</div>
 
@@ -161,6 +167,11 @@
 							</span>
 							<span class="value" data-bind="text: businessOffice"></span>
 						</div>
+					</div>
+					<div class="fieldset address"
+						data-bind="visible: businessStreetAddress() || businessCity() || businessState() || businessZipCode() || businessCountry()">
+						<span class="label address" data-bind="i18n: {'key': '%MODULENAME%/LABEL_ADDRESS'}"></span>
+
 						<div class="row flex street" data-bind="visible: '' !== businessStreetAddress()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_STREET_ADDRESS'}"></span>:
@@ -191,6 +202,8 @@
 							</span>
 							<span class="value" data-bind="text: businessCountry"></span>
 						</div>
+					</div>
+					<div class="fieldset">
 						<div class="row webpage" data-bind="visible: '' !== businessWeb()">
 							<span class="label">
 								<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_WEB_PAGE'}"></span>:
