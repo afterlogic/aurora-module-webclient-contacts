@@ -1878,7 +1878,7 @@ CContactsView.prototype.initUploader = function ()
 				'Parameters':  _.bind(function () {
 					return JSON.stringify({
 						'GroupUUID': this.currentGroupUUID(),
-						'Storage': 'personal'
+						'Storage': this.selectedStorage()
 					});
 				}, this)
 			}, App.getCommonRequestParameters())
