@@ -43,7 +43,7 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 		{
 			aList = _.map(oResponse.Result.List, function (oItem) {
 				if (oItem.IsGroup && oItem.Name) {
-					if (!oItem.Emails) {
+					if (!oItem.Emails && !addUserGroups) {
 						return null;
 					}
 					return {
@@ -102,7 +102,6 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 				return -oItem.frequency;
 			});
 		}
-
 		fResponse(aList);
 
 	});
