@@ -22,7 +22,7 @@ var
  * @returns {undefined}
  */
 function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = false,
-					addUserGroups = false, exceptEmail = '', addEmailsToGroups = false, useEmailAsValues = false})
+					addUserGroups = false, exceptEmail = '', addEmailsToGroups = false, useEmailAsValues = false, withoutEmptyEmails = false})
 {
 	var
 		sTerm = oRequest.term,
@@ -43,7 +43,7 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 		{
 			aList = _.map(oResponse.Result.List, function (oItem) {
 				if (oItem.IsGroup && oItem.Name) {
-					if (!oItem.Emails && !addUserGroups) {
+					if (!oItem.Emails && withoutEmptyEmails) {
 						return null;
 					}
 					return {
@@ -76,7 +76,7 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 						sValue = ('"' + oItem.FullName + '" <' + oItem.ViewEmail + '>');
 					}
 				}
-				if (oItem && oItem.ViewEmail && oItem.ViewEmail !== exceptEmail) {
+				if (oItem && ((oItem.ViewEmail && oItem.ViewEmail !== exceptEmail) || (!oItem.ViewEmail && !withoutEmptyEmails))) {
 					return {
 						label: sLabel ? sLabel : sValue,
 						value: sValue,
@@ -97,13 +97,12 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 				return null;
 			});
 
-			aList = aList.filter(item => item && item.email);
+			aList = aList.filter(item => item);
 			aList = _.sortBy(_.compact(aList), function(oItem){
 				return -oItem.frequency;
 			});
 		}
 		fResponse(aList);
-
 	});
 }
 
