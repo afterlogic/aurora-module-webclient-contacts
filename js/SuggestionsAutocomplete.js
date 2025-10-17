@@ -2,10 +2,8 @@
 
 var
 	_ = require('underscore'),
-	$ = require('jquery'),
 	
-	AddressUtils = require('%PathToCoreWebclientModule%/js/utils/Address.js'),
-	Types = require('%PathToCoreWebclientModule%/js/utils/Types.js'),
+	TextUtils = require('%PathToCoreWebclientModule%/js/utils/Text.js'),
 	
 	Ajax = require('modules/%ModuleName%/js/Ajax.js')
 ;
@@ -60,7 +58,7 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 					sValue = oItem.ViewEmail,
 					sLabel = ''
 				;
-				if (!useEmailAsValues && oItem.FullName && 0 < $.trim(oItem.FullName).length)
+				if (!useEmailAsValues && oItem.FullName && 0 < TextUtils.trim(oItem.FullName).length)
 				{
 					if (oItem.ForSharedToAll)
 					{

@@ -13,6 +13,8 @@ Ajax.registerAbortRequestHandler(Settings.ServerModuleName, function (oRequest, 
 			return oOpenedRequest.Method === 'GetContacts';
 		case 'GetContact':
 			return oOpenedRequest.Method === 'GetContact';
+		case 'GetContactSuggestions':
+			return oOpenedRequest.Method === 'GetContactSuggestions';
 	}
 	
 	return false;
