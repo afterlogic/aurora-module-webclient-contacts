@@ -530,7 +530,7 @@ CContactsView.prototype.executeSave = function (oData)
 						Callback: function (result) {
 							if (result.Error)
 							{
-								Screens.showError(result.ErrorMessage);
+								Screens.showError(TextUtils.stripTags(result.ErrorMessage));
 								this.isSaving(false);
 							}
 							else
