@@ -2,7 +2,7 @@
 	<span class="icon"></span>
 	<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_NEW_MESSAGE'}"></span>
 </span>
-<span class="item add_to" data-bind="visible: showPersonalContacts(), dropdown: {control: false}, command: addContactsCommand, customTooltip: '%MODULENAME%/ACTION_ADD_CONTACT_TO'">
+<span class="item add_to" data-test-id="contacts-assign-group" data-bind="visible: showPersonalContacts(), dropdown: {control: false}, command: addContactsCommand, customTooltip: '%MODULENAME%/ACTION_ADD_CONTACT_TO'">
 	<span class="icon"></span>
 	<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_ADD_CONTACT_TO'}"></span>
 	<span class="icon arrow"></span>
@@ -20,7 +20,7 @@
 		</span>
 	</span>
 </span>
-<span class="item delete" data-bind="visible: isDeleteVisible,
+<span class="item delete" data-test-id="contacts-menu-delete" data-bind="visible: isDeleteVisible,
 	  command: deleteCommand, customTooltip: 'COREWEBCLIENT/ACTION_DELETE'"
 >
 	<span class="icon"></span>

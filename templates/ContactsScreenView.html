@@ -16,11 +16,11 @@
 		</div>
 		<div class="panel item_viewer contact_viewer" data-bind="css: 'contact_' + (selectedContact() && selectedContact().storage())">
 			<div class="panel_content">
-				<div class="middle_bar contact" data-bind="visible: selectedContact() && !selectedContact().edited(), with: selectedContact">
+				<div class="middle_bar contact" data-test-id="contacts-view" data-bind="visible: selectedContact() && !selectedContact().edited(), with: selectedContact">
 					<!-- ko template: { name: '%ModuleName%_ContactView', data: $data} --><!-- /ko -->
 				</div>
 
-				<div class="middle_bar edit_contact" data-bind="visible: selectedContact() && selectedContact().edited(), with: selectedContact" id="selenium_contacts_edit_form">
+				<div class="middle_bar edit_contact" data-bind="visible: selectedContact() && selectedContact().edited(), with: selectedContact" id="selenium_contacts_edit_form" data-test-id="contacts-edit">
 					<!-- ko template: { name: '%ModuleName%_EditContactView', data: $data } --><!-- /ko -->
 				</div>
 
@@ -28,7 +28,7 @@
 					<!-- ko template: { name: '%ModuleName%_GroupView', data: $data } --><!-- /ko -->
 				</div>
 
-				<div class="middle_bar edit_group" data-bind="visible: selectedGroup() && selectedGroup().edited(), with: selectedGroup" id="selenium_contacts_edit_group_form">
+				<div class="middle_bar edit_group" data-bind="visible: selectedGroup() && selectedGroup().edited(), with: selectedGroup" id="selenium_contacts_edit_group_form" data-test-id="contacts-group-edit">
 					<!-- ko template: { name: '%ModuleName%_EditGroupView', data: $data } --><!-- /ko -->
 				</div>
 

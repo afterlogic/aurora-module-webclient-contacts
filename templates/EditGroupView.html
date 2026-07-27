@@ -11,7 +11,7 @@
 					<span class="label">
 						<span data-bind="i18n: {'key': '%MODULENAME%/LABEL_GROUP_NAME'}"></span>:
 					</span>
-					<input class="value input" type="text" id="selenium_contacts_edit_group_name"
+					<input class="value input" type="text" id="selenium_contacts_edit_group_name" data-test-id="contacts-group-edit-name"
 						   data-bind="hasfocus: nameFocused, value: name, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" />
 				</div>
 				<div class="row"> 
@@ -93,7 +93,7 @@
 </div>
 <div class="panel_bottom">
 	<div class="buttons">
-		<span class="button" data-bind="command: $root.saveCommand, visible: !$root.isSaving()">
+		<span class="button" data-test-id="contacts-group-edit-save" data-bind="command: $root.saveCommand, visible: !$root.isSaving()">
 			<span class="text" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_SAVE'}"></span>
 		</span>
 		<span class="button" data-bind="visible: $root.isSaving">

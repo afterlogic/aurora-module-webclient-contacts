@@ -3,7 +3,7 @@
 		<span class="item checkstate command" data-bind="click: refreshContactsAndGroups, checkstate: {'activeClass': 'process', 'state': preLoadingList(), 'duration': 800}">
 			<span class="icon"></span>
 		</span>
-		<span class="item new_group" data-bind="visible: showPersonalContacts(),
+		<span class="item new_group" data-test-id="contacts-create-group" data-bind="visible: showPersonalContacts(),
 			command: newGroupCommand, customTooltip: '%MODULENAME%/ACTION_NEW_GROUP'" id="selenium_contacts_new_group_button">
 			<span class="icon"></span>
 			<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_NEW_GROUP'}"></span>
@@ -11,11 +11,11 @@
 
 		<!-- ko template: {name: '%ModuleName%_Toolbar_ContactsCommonPartView'} --><!-- /ko -->
 
-		<span class="item share-all" data-bind="visible: visibleShareCommand, command: shareCommand, customTooltip: '%MODULENAME%/ACTION_SHARE'">
+		<span class="item share-all" data-test-id="contacts-menu-share" data-bind="visible: visibleShareCommand, command: shareCommand, customTooltip: '%MODULENAME%/ACTION_SHARE'">
 			<span class="icon"></span>
 			<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_SHARE'}"></span>
 		</span>
-		<span class="item unshare-all" data-bind="visible: visibleUnshareCommand, command: shareCommand, customTooltip: '%MODULENAME%/ACTION_UNSHARE'">
+		<span class="item unshare-all" data-test-id="contacts-menu-unshare" data-bind="visible: visibleUnshareCommand, command: shareCommand, customTooltip: '%MODULENAME%/ACTION_UNSHARE'">
 			<span class="icon"></span>
 			<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_UNSHARE'}"></span>
 		</span>

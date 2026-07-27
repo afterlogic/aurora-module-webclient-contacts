@@ -12,13 +12,13 @@
 					<span class="label">
 						<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_DISPLAY_NAME'}"></span>:
 					</span>
-					<input class="value input" type="text" data-bind="value: displayName, hasfocus: displayNameFocused, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" id="selenium_contacts_edit_name" />
+					<input class="value input" type="text" data-test-id="contacts-edit-name" data-bind="value: displayName, hasfocus: displayNameFocused, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" id="selenium_contacts_edit_name" />
 				</div>
 				<div class="row" data-bind="visible: !itsMe()">
 					<span class="label">
 						<span class="text" data-bind="i18n: {'key': 'COREWEBCLIENT/LABEL_EMAIL'}"></span>:
 					</span>
-					<input class="value input" type="text" data-bind="value: email, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" id="selenium_contacts_edit_email" />
+					<input class="value input" type="text" data-test-id="contacts-edit-email" data-bind="value: email, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" id="selenium_contacts_edit_email" />
 				</div>
 				<div class="row" data-bind="visible: itsMe()">
 					<span class="label">
@@ -390,7 +390,7 @@
 </div>
 <div class="panel_bottom">
 	<div class="buttons">
-		<span class="button" data-bind="command: $root.saveCommand, visible: !$root.isSaving()">
+		<span class="button" data-test-id="contacts-edit-save" data-bind="command: $root.saveCommand, visible: !$root.isSaving()">
 			<span class="text" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_SAVE'}"></span>
 		</span>
 		<span class="button" data-bind="visible: $root.isSaving">

@@ -1,20 +1,20 @@
 <div class="panel_top">
-	<label class="custom_checkbox" data-bind="css: {'checked': checkAll, 'incomplete': checkAllIncomplite}">
+	<label class="custom_checkbox" data-test-id="contacts-select-all" data-bind="css: {'checked': checkAll, 'incomplete': checkAllIncomplite}">
 		<span class="icon"></span>
 		<input type="checkbox" data-bind="checked: checkAll" />
 	</label>
-	<span class="search_block">
+	<span class="search_block" data-test-id="contacts-search">
 		<span class="input" data-bind="css: {'focus': isSearchFocused}">
 			<span class="icon search" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_SEARCH'}, click: searchSubmitCommand"></span>
-			<input class="field" type="text" data-bind="valueUpdate: 'afterkeydown', value: searchInput, onEnter: searchSubmitCommand, hasfocus: isSearchFocused" />
+			<input class="field" type="text" data-test-id="contacts-search-input" data-bind="valueUpdate: 'afterkeydown', value: searchInput, onEnter: searchSubmitCommand, hasfocus: isSearchFocused" />
 		</span>
 	</span>
 </div>
 <div class="panel_center unselectable" data-bind="customScrollbar: {'scrollToTopTrigger': listChanged, x: false}">
 	<div class="contact_list_scroll scroll-inner">
-		<div class="items_list contact_list">
+		<div class="items_list contact_list" data-test-id="contacts-list">
 			<div data-bind="visible: isEmptyList() && !preLoadingList()">
-				<span class="list_notification" data-bind="visible: !isSearch()">
+				<span class="list_notification" data-test-id="contacts-empty" data-bind="visible: !isSearch()">
 					<span class="description" data-bind="i18n: {'key': '%MODULENAME%/INFO_NO_CONTACTS'}"></span>
 					<span class="description" data-bind="text: infoCreateOrImport, visible: visibleCreateOrImportText"></span>
 					<span class="description" data-bind="i18n: {'key': '%MODULENAME%/INFO_DRAGNDROP_TO_GROUP'}, visible: visibleDragNDropToGroupText"></span>
@@ -36,7 +36,7 @@
 
 			<div class="items_sub_list contact_sub_list" data-bind="foreach: collection, 
 				 draggablePlace: dragAndDropHelper">
-				<div class="item nosubject" data-bind="css: {'checked': checked, 'selected': selected, 
+				<div class="item nosubject" data-test-id="contacts-item" data-bind="css: {'checked': checked, 'selected': selected, 
 							'deleted': deleted, 'noname': !Name(), 'noemail': !Email(), 'dragHandle': true}">
 					<div class="item_content">
 						<span class="controls">
@@ -44,7 +44,7 @@
 								<span class="icon"></span>
 								<input type="checkbox" data-bind="checked: checked" />
 							</label>-->
-							<span class="custom_checkbox" data-bind="click: function () { checked(!checked()); }, css: {'checked': checked()}">
+							<span class="custom_checkbox" data-test-id="contacts-item-checkbox" data-bind="click: function () { checked(!checked()); }, css: {'checked': checked()}">
 								<span class="icon" data-bind="attr: { 'data-initials': $parent.getInitials($data) }"></span>
 							</span>
 						</span>

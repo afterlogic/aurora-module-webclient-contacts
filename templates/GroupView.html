@@ -1,8 +1,8 @@
 <div class="panel_top">
 	<div class="buttons">
-		<span class="button clear_button" id="selenium_contacts_delete_group_button" data-bind="i18n: {'key': '%MODULENAME%/ACTION_DELETE_GROUP'}, 
+		<span class="button clear_button" id="selenium_contacts_delete_group_button" data-test-id="contacts-group-view-delete" data-bind="i18n: {'key': '%MODULENAME%/ACTION_DELETE_GROUP'}, 
 				click: function() { $root.deleteGroup(uuid()); }"></span>
-		<span class="button clear_button" data-bind="i18n: {'key': '%MODULENAME%/ACTION_EDIT_GROUP'}, click: function (oItem) { $root.editGroup(oItem); }"></span>
+		<span class="button clear_button" data-test-id="contacts-group-view-edit" data-bind="i18n: {'key': '%MODULENAME%/ACTION_EDIT_GROUP'}, click: function (oItem) { $root.editGroup(oItem); }"></span>
 		<span class="button" data-bind="visible: $root.bAllowComposeMessageToAddresses, i18n: {'key': '%MODULENAME%/ACTION_EMAIL_TO_GROUP'}, 
 				click: function() { $root.mailGroup($data); }, css: {'disabled': $root.isEmptyList}"></span>
 	</div>

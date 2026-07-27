@@ -1,8 +1,8 @@
 <div class="panel_top">
 	<!-- ko template: { name: '%ModuleName%_Toolbar_ContactView'} --><!-- /ko -->
-	<h2 class="contacts_heading" data-bind="visibility: '' !== displayName(), text: displayName()"></h2>
+	<h2 class="contacts_heading" data-test-id="contacts-view-name" data-bind="visibility: '' !== displayName(), text: displayName()"></h2>
 	<span class="mailto_link" data-bind="text: email(), visible: !$root.bAllowComposeMessageToAddresses"></span>
-	<span class="mailto_link" data-bind="makeLinkComposeMailTo: getFullEmail(), 
+	<span class="mailto_link" data-test-id="contacts-view-email-compose" data-bind="makeLinkComposeMailTo: getFullEmail(), 
 			customTooltip: $root.bAllowComposeMessageToAddresses ? '%MODULENAME%/ACTION_EMAIL_TO_CONTACT' : '',
 			text: email(), visible: $root.bAllowComposeMessageToAddresses">
 	</span>
@@ -10,7 +10,7 @@
 <div class="decor"></div>
 <div class="panel_center">
 	<div class="buttons" data-bind="visible: !readOnly() && !$root.isSelectedAddressbookSharedForReading()">
-		<span class="button edit" data-bind="click: function () { edited(true); }">
+		<span class="button edit" data-test-id="contacts-menu-edit" data-bind="click: function () { edited(true); }">
 			<span class="text" data-bind="i18n: {'key': '%MODULENAME%/ACTION_EDIT_CONTACT'}"></span>
 		</span>
 	</div>
@@ -316,7 +316,7 @@
 				</div>
 			</div>
 			<div class="fields_switcher" data-bind="visible: $root.bAllowSearchMessagesInInbox && hasEmails()">
-				<span class="link" data-bind="i18n: {'key': '%MODULENAME%/ACTION_SEE_EMAILS_WITH_CONTACT'}, click: function () {$root.searchMessagesInInbox('email:' + getEmailsString());}"></span>
+				<span class="link" data-test-id="contacts-menu-find-in-mail" data-bind="i18n: {'key': '%MODULENAME%/ACTION_SEE_EMAILS_WITH_CONTACT'}, click: function () {$root.searchMessagesInInbox('email:' + getEmailsString());}"></span>
 			</div>
 		</div>
 	</div>
