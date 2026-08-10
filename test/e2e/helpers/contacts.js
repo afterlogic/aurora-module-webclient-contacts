@@ -6,6 +6,7 @@ const { sharedHelper, fixturePath } = require(path.join(
 const { expect } = require('@playwright/test')
 const { step, attachScreenshot, fieldControl } = sharedHelper('login')
 const { waitForListReady, clickReady, clickNav, confirmOkIfVisible } = sharedHelper('ready')
+const { T } = sharedHelper('timeouts')
 
 const listReadyOptions = {
   itemTestIds: 'contacts-item',
@@ -22,7 +23,7 @@ async function openContacts(page) {
   await step('Open Contacts', async () => {
     await clickNav(page, 'nav-contacts')
     await expect(page.getByTestId('contacts-list')).toBeVisible({
-      timeout: 60000,
+      timeout: T(60000),
     })
     await waitForListReady(page, listReadyOptions)
   })
@@ -30,7 +31,7 @@ async function openContacts(page) {
 
 async function fillContactsField(page, testId, value) {
   const input = fieldControl(page, testId)
-  await expect(input).toBeVisible({ timeout: 15000 })
+  await expect(input).toBeVisible({ timeout: T(15000) })
   // clear + pressSequentially for Knockout value binding
   await input.clear()
   await input.pressSequentially(String(value), { delay: 15 })
@@ -38,7 +39,7 @@ async function fillContactsField(page, testId, value) {
 
 async function searchContacts(page, query) {
   const input = page.getByTestId('contacts-search-input')
-  await expect(input).toBeVisible({ timeout: 15000 })
+  await expect(input).toBeVisible({ timeout: T(15000) })
   await input.clear()
   await input.fill(query)
   await input.press('Enter')
@@ -52,13 +53,13 @@ async function createContact(page, { name, email }) {
   await step(`Create contact ${name} <${email}>`, async () => {
     await clickReady(page.getByTestId('contacts-create-fab'))
     await expect(page.getByTestId('contacts-edit')).toBeVisible({
-      timeout: 15000,
+      timeout: T(15000),
     })
     await fillContactsField(page, 'contacts-edit-name', name)
     await fillContactsField(page, 'contacts-edit-email', email)
     await clickReady(page.getByTestId('contacts-edit-save'))
     await expect(page.getByTestId('contacts-list')).toBeVisible({
-      timeout: 30000,
+      timeout: T(30000),
     })
     await waitForListReady(page, listReadyOptions)
   })
@@ -69,7 +70,7 @@ async function createContactViaFab(page, { fullName, email, name }) {
   const contactName = fullName || name
   await clickReady(page.getByTestId('contacts-create-fab'))
   await expect(page.getByTestId('contacts-edit')).toBeVisible({
-    timeout: 30000,
+    timeout: T(30000),
   })
   await fillContactsField(page, 'contacts-edit-name', contactName)
   await fillContactsField(page, 'contacts-edit-email', email)
@@ -84,7 +85,7 @@ async function createContactViaFab(page, { fullName, email, name }) {
   if (!onPage) {
     await searchContacts(page, contactName)
   }
-  await expect(item).toBeVisible({ timeout: 45000 })
+  await expect(item).toBeVisible({ timeout: T(45000) })
   await waitForListReady(page, listReadyOptions)
 }
 
@@ -101,10 +102,19 @@ async function openContactByName(page, fullName) {
       .filter({ hasText: fullName })
       .first()
   }
-  await expect(item).toBeVisible({ timeout: 30000 })
+  await expect(item).toBeVisible({ timeout: T(30000) })
   await clickReady(item)
+  // contacts-view uses v-show/visibility (element stays in the DOM), so if a
+  // prior action already left it visible, toBeVisible() alone can resolve
+  // instantly without confirming THIS click's contact actually loaded —
+  // selectedContactUUID (route-driven, gates delete/menu actions) can still
+  // be mid-flight at that point. Wait for the panel to show this contact's
+  // own name instead, which only renders once the route has committed.
   await expect(page.getByTestId('contacts-view')).toBeVisible({
-    timeout: 30000,
+    timeout: T(30000),
+  })
+  await expect(page.getByTestId('contacts-view-name')).toHaveText(fullName, {
+    timeout: T(30000),
   })
 }
 
@@ -113,12 +123,12 @@ async function deleteOpenedContact(page, fullName) {
   // Desktop may delete without ConfirmPopup.
   await confirmOkIfVisible(page, 5000)
   await expect(page.getByTestId('contacts-list')).toBeVisible({
-    timeout: 30000,
+    timeout: T(30000),
   })
   await waitForListReady(page, listReadyOptions)
   await expect(
     page.getByTestId('contacts-item').filter({ hasText: fullName })
-  ).toHaveCount(0, { timeout: 30000 })
+  ).toHaveCount(0, { timeout: T(30000) })
 }
 
 async function selectContactCheckbox(page, item) {
@@ -129,13 +139,13 @@ async function selectContactCheckbox(page, item) {
 async function createGroupViaFab(page, groupName) {
   await clickReady(page.getByTestId('contacts-create-group'))
   await expect(page.getByTestId('contacts-group-edit')).toBeVisible({
-    timeout: 30000,
+    timeout: T(30000),
   })
   await fillContactsField(page, 'contacts-group-edit-name', groupName)
   await clickReady(page.getByTestId('contacts-group-edit-save'))
   await expect(
     page.getByTestId('contacts-group-item').filter({ hasText: groupName }).first()
-  ).toBeVisible({ timeout: 45000 })
+  ).toBeVisible({ timeout: T(45000) })
 }
 
 async function openGroupFromDrawer(page, groupName) {
@@ -144,10 +154,10 @@ async function openGroupFromDrawer(page, groupName) {
     .getByTestId('contacts-group-item')
     .filter({ hasText: groupName })
     .first()
-  await expect(group).toBeVisible({ timeout: 15000 })
+  await expect(group).toBeVisible({ timeout: T(15000) })
   await clickReady(group)
   await expect(page.getByTestId('contacts-list')).toBeVisible({
-    timeout: 30000,
+    timeout: T(30000),
   })
   await waitForListReady(page, listReadyOptions)
 }

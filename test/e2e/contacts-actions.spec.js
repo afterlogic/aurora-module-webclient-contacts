@@ -4,6 +4,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
   'helpers/paths'
 ))
 const { test, expect } = require('@playwright/test')
+const { T } = sharedHelper('timeouts')
 const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
@@ -21,13 +22,13 @@ test.describe('Desktop contacts actions', () => {
   test.skip(!hasCredentials(), 'Set E2E_LOGIN_0/E2E_PASSWORD_0 (or E2E_LOGIN/E2E_PASSWORD) in .env.e2e')
 
   test('shows storages in sidebar and switches storage', async ({ page }) => {
-    test.setTimeout(120000)
+    test.setTimeout(T(120000))
     await loginAsTestUser(page)
     await openContacts(page)
 
     await step('Expect contacts storages in sidebar', async () => {
       const storages = page.getByTestId('contacts-storage-item')
-      await expect(storages.first()).toBeVisible({ timeout: 15000 })
+      await expect(storages.first()).toBeVisible({ timeout: T(15000) })
       const count = await storages.count()
       console.log(`  → Storages: ${count}`)
       expect(count).toBeGreaterThan(0)
@@ -39,7 +40,7 @@ test.describe('Desktop contacts actions', () => {
       const firstName = (await first.innerText()).trim()
       await clickReady(first)
       await expect(page.getByTestId('contacts-list')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await waitForListReady(page, listReadyOptions)
       console.log(`  → Selected storage: ${firstName}`)
@@ -62,7 +63,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('search filters contacts list', async ({ page }) => {
-    test.setTimeout(120000)
+    test.setTimeout(T(120000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -83,7 +84,7 @@ test.describe('Desktop contacts actions', () => {
 
     await step('Type search query', async () => {
       const input = page.getByTestId('contacts-search-input')
-      await expect(input).toBeVisible({ timeout: 15000 })
+      await expect(input).toBeVisible({ timeout: T(15000) })
       await input.fill(query)
       await input.press('Enter')
       console.log(`  → Search query: ${query}`)
@@ -93,7 +94,7 @@ test.describe('Desktop contacts actions', () => {
 
     await step('Expect filtered list contains query', async () => {
       const items = page.getByTestId('contacts-item')
-      await expect(items.first()).toBeVisible({ timeout: 30000 })
+      await expect(items.first()).toBeVisible({ timeout: T(30000) })
       const count = await items.count()
       console.log(`  → Results: ${count}`)
       expect(count).toBeGreaterThan(0)
@@ -102,7 +103,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('creates a contact via FAB', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -119,13 +120,13 @@ test.describe('Desktop contacts actions', () => {
     await step('Find new contact in list', async () => {
       await expect(
         page.getByTestId('contacts-item').filter({ hasText: fullName }).first()
-      ).toBeVisible({ timeout: 30000 })
+      ).toBeVisible({ timeout: T(30000) })
       await attachScreenshot(page, 'contacts-create-03-list')
     })
   })
 
   test('edits a contact name', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -141,16 +142,16 @@ test.describe('Desktop contacts actions', () => {
     await step('Open edit and rename', async () => {
       await clickReady(page.getByTestId('contacts-menu-edit'))
       await expect(page.getByTestId('contacts-edit')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await fillContactsField(page, 'contacts-edit-name', renamed)
       await clickReady(page.getByTestId('contacts-edit-save'))
       await expect(page.getByTestId('contacts-view')).toBeVisible({
-        timeout: 45000,
+        timeout: T(45000),
       })
       await expect(page.getByTestId('contacts-view-name')).toContainText(
         renamed,
-        { timeout: 15000 }
+        { timeout: T(15000) }
       )
       console.log(`  → Renamed: ${fullName} → ${renamed}`)
       await attachScreenshot(page, 'contacts-edit-01')
@@ -162,7 +163,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('deletes a contact', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -182,7 +183,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('creates and deletes a group', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -191,13 +192,13 @@ test.describe('Desktop contacts actions', () => {
     await step('Create group via toolbar', async () => {
       await clickReady(page.getByTestId('contacts-create-group'))
       await expect(page.getByTestId('contacts-group-edit')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await fillContactsField(page, 'contacts-group-edit-name', groupName)
       await clickReady(page.getByTestId('contacts-group-edit-save'))
       await expect(
         page.getByTestId('contacts-group-item').filter({ hasText: groupName })
-      ).toBeVisible({ timeout: 45000 })
+      ).toBeVisible({ timeout: T(45000) })
       console.log(`  → Group created: ${groupName}`)
       await attachScreenshot(page, 'contacts-group-01-created')
     })
@@ -214,19 +215,19 @@ test.describe('Desktop contacts actions', () => {
       await clickReady(del)
       // Desktop may delete immediately or via ConfirmPopup.
       const confirmOk = page.getByTestId('confirm-ok')
-      if (await confirmOk.isVisible({ timeout: 3000 }).catch(() => false)) {
+      if (await confirmOk.isVisible({ timeout: T(3000) }).catch(() => false)) {
         await clickReady(confirmOk)
       }
       await expect(
         page.getByTestId('contacts-group-item').filter({ hasText: groupName })
-      ).toHaveCount(0, { timeout: 30000 })
+      ).toHaveCount(0, { timeout: T(30000) })
       console.log(`  → Group deleted: ${groupName}`)
       await attachScreenshot(page, 'contacts-group-02-deleted')
     })
   })
 
   test('opens compose from contact email action', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -241,7 +242,7 @@ test.describe('Desktop contacts actions', () => {
 
     await step('Tap email compose action on contact card', async () => {
       const mailBtn = page.getByTestId('contacts-view-email-compose').first()
-      await expect(mailBtn).toBeVisible({ timeout: 15000 })
+      await expect(mailBtn).toBeVisible({ timeout: T(15000) })
       await clickReady(mailBtn)
       await expectComposeOpen(page)
       await attachScreenshot(page, 'contacts-compose-01')
@@ -263,7 +264,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('shares contact then unshares from Shared storage', async ({ page }) => {
-    test.setTimeout(240000)
+    test.setTimeout(T(240000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -299,7 +300,7 @@ test.describe('Desktop contacts actions', () => {
       await waitForListReady(page, listReadyOptions)
       await openContactByName(page, fullName)
       const unshare = page.getByTestId('contacts-menu-unshare')
-      await expect(unshare).toBeVisible({ timeout: 10000 })
+      await expect(unshare).toBeVisible({ timeout: T(10000) })
       await clickReady(unshare)
       await waitForListReady(page, listReadyOptions)
       console.log(`  → Unshared: ${fullName}`)
@@ -307,7 +308,16 @@ test.describe('Desktop contacts actions', () => {
     })
 
     await step('Cleanup: delete from personal storage if still there', async () => {
-      const personal = page.getByTestId('contacts-storage-item').first()
+      // Not .first() — the sidebar lists "All" before "Personal" in both apps
+      // (GroupsView.html / ContactsGroupsPanel.vue), and Delete is deliberately
+      // hidden while the combined "All" storage is selected (isDeleteVisible
+      // requires selectedStorage === 'personal'/'shared'/a real address book,
+      // never 'all' — same in legacy's CContactsView.js). Picking "All" here
+      // left contacts-menu-delete permanently absent, not just slow to appear.
+      const personal = page
+        .getByTestId('contacts-storage-item')
+        .filter({ hasText: /personal/i })
+        .first()
       await clickReady(personal)
       await waitForListReady(page, listReadyOptions)
       const item = page
@@ -323,7 +333,7 @@ test.describe('Desktop contacts actions', () => {
   })
 
   test('find in mail from contact menu', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -344,7 +354,7 @@ test.describe('Desktop contacts actions', () => {
       )
       await clickReady(find)
       await expect(page.getByTestId('mail-message-list')).toBeVisible({
-        timeout: 60000,
+        timeout: T(60000),
       })
       console.log('  → Navigated to mail search/list')
       await attachScreenshot(page, 'contacts-find-mail-01')

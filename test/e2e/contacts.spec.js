@@ -4,6 +4,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
   'helpers/paths'
 ))
 const { test, expect } = require('@playwright/test')
+const { T } = sharedHelper('timeouts')
 const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { waitForListReady, clickReady } = sharedHelper('ready')
 const {
@@ -17,7 +18,7 @@ test.describe('Desktop contacts', () => {
   test.skip(!hasCredentials(), 'Set E2E_LOGIN_0/E2E_PASSWORD_0 (or E2E_LOGIN/E2E_PASSWORD) in .env.e2e')
 
   test('opens first contact from the list', async ({ page }) => {
-    test.setTimeout(120000)
+    test.setTimeout(T(120000))
 
     await loginAsTestUser(page)
     await openContacts(page)
@@ -47,10 +48,10 @@ test.describe('Desktop contacts', () => {
     await step('Open first contact', async () => {
       await clickReady(items.first())
       await expect(page.getByTestId('contacts-view')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await expect(page.getByTestId('contacts-view-name')).toBeVisible({
-        timeout: 15000,
+        timeout: T(15000),
       })
       const name = (
         await page.getByTestId('contacts-view-name').innerText()
@@ -66,7 +67,7 @@ test.describe('Desktop contacts', () => {
   })
 
   test('lists contacts and creates a contact', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
 
     const stamp = Date.now()
     const name = `E2E Contact ${stamp}`
@@ -83,7 +84,7 @@ test.describe('Desktop contacts', () => {
         .getByTestId('contacts-item')
         .filter({ hasText: name })
         .first()
-      await expect(item).toBeVisible({ timeout: 30000 })
+      await expect(item).toBeVisible({ timeout: T(30000) })
       console.log(`  → Contact created: ${name}`)
       await attachScreenshot(page, 'contacts-create-02-created')
     })

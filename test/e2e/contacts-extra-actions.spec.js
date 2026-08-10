@@ -4,6 +4,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
   'helpers/paths'
 ))
 const { test, expect } = require('@playwright/test')
+const { T } = sharedHelper('timeouts')
 const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
@@ -22,7 +23,7 @@ test.describe('Desktop contacts team and send', () => {
   test('opens Team storage when available (read-only browse)', async ({
     page,
   }) => {
-    test.setTimeout(120000)
+    test.setTimeout(T(120000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -34,7 +35,7 @@ test.describe('Desktop contacts team and send', () => {
       test.skip((await team.count()) === 0, 'No Team storage on this stand')
       await clickReady(team)
       await expect(page.getByTestId('contacts-list')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await waitForListReady(page, listReadyOptions)
       console.log('  → Team storage open')
@@ -49,7 +50,7 @@ test.describe('Desktop contacts team and send', () => {
       }
       await clickReady(items.first())
       await expect(page.getByTestId('contacts-view')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       // Team contacts typically cannot be deleted.
       const del = page.getByTestId('contacts-menu-delete')
@@ -63,7 +64,7 @@ test.describe('Desktop contacts team and send', () => {
   })
 
   test('Send / compose from contact email when available', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -85,7 +86,7 @@ test.describe('Desktop contacts team and send', () => {
       )
       await clickReady(mailBtn)
       await expect(page.getByTestId('mail-compose')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       console.log('  → Compose opened from contact')
       await attachScreenshot(page, 'contacts-send-compose')

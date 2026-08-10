@@ -4,6 +4,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
   'helpers/paths'
 ))
 const { test, expect } = require('@playwright/test')
+const { T } = sharedHelper('timeouts')
 const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
@@ -17,6 +18,7 @@ const {
   openGroupFromDrawer,
   fillContactsField,
   confirmOkIfVisible,
+  searchContacts,
 } = require('./helpers/contacts')
 const {
   closeComposeWithoutSending,
@@ -28,7 +30,7 @@ test.describe('Desktop contacts select and groups', () => {
   test.skip(!hasCredentials(), 'Set E2E_LOGIN_0/E2E_PASSWORD_0 (or E2E_LOGIN/E2E_PASSWORD) in .env.e2e')
 
   test('multi-select bulk deletes contacts', async ({ page }) => {
-    test.setTimeout(240000)
+    test.setTimeout(T(240000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -41,7 +43,9 @@ test.describe('Desktop contacts select and groups', () => {
     await step('Create two contacts', async () => {
       await createContactViaFab(page, { fullName: nameA, email: emailA })
       await createContactViaFab(page, { fullName: nameB, email: emailB })
-      await waitForListReady(page, listReadyOptions)
+      // createContactViaFab may fall back to a search filter to find the new
+      // contact on a large list — clear it so both contacts are visible together.
+      await searchContacts(page, stamp.toString())
     })
 
     await step('Check both contacts', async () => {
@@ -62,17 +66,17 @@ test.describe('Desktop contacts select and groups', () => {
       await waitForListReady(page, listReadyOptions)
       await expect(
         page.getByTestId('contacts-item').filter({ hasText: nameA })
-      ).toHaveCount(0, { timeout: 30000 })
+      ).toHaveCount(0, { timeout: T(30000) })
       await expect(
         page.getByTestId('contacts-item').filter({ hasText: nameB })
-      ).toHaveCount(0, { timeout: 30000 })
+      ).toHaveCount(0, { timeout: T(30000) })
       console.log('  → Both contacts deleted')
       await attachScreenshot(page, 'contacts-select-02-deleted')
     })
   })
 
   test('multi-select opens compose to selected contacts', async ({ page }) => {
-    test.setTimeout(240000)
+    test.setTimeout(T(240000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -85,7 +89,9 @@ test.describe('Desktop contacts select and groups', () => {
     await step('Create two contacts with email', async () => {
       await createContactViaFab(page, { fullName: nameA, email: emailA })
       await createContactViaFab(page, { fullName: nameB, email: emailB })
-      await waitForListReady(page, listReadyOptions)
+      // createContactViaFab may fall back to a search filter to find the new
+      // contact on a large list — clear it so both contacts are visible together.
+      await searchContacts(page, stamp.toString())
     })
 
     await step('Select both → look for mail action', async () => {
@@ -128,7 +134,7 @@ test.describe('Desktop contacts select and groups', () => {
   })
 
   test('assigns contact to group via toolbar', async ({ page }) => {
-    test.setTimeout(300000)
+    test.setTimeout(T(300000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -141,16 +147,24 @@ test.describe('Desktop contacts select and groups', () => {
       await createGroupViaFab(page, groupName)
       await expect(
         page.getByTestId('contacts-group-item').filter({ hasText: groupName })
-      ).toBeVisible({ timeout: 45000 })
+      ).toBeVisible({ timeout: T(45000) })
     })
 
     await step('Create contact and assign to group', async () => {
-      // Ensure personal/all list is active for create.
-      const personal = page.getByTestId('contacts-storage-item').first()
-      if (await personal.isVisible().catch(() => false)) {
-        await clickReady(personal)
-        await waitForListReady(page, listReadyOptions)
-      }
+      // Reset to Personal storage before creating — after "Create group" the
+      // active view may still be scoped to the just-created group. The old
+      // guard used .isVisible() (no polling, an instant one-shot check — see
+      // memory on confirmOkIfVisible's identical bug), which could resolve
+      // false and skip the reset before the sidebar finished re-rendering,
+      // leaving the new contact scoped/created inside the group's own view
+      // instead of Personal. Not .first() either — the sidebar lists "All"
+      // before "Personal" in both apps (see bug_contacts_storage_first_wrong).
+      const personal = page
+        .getByTestId('contacts-storage-item')
+        .filter({ hasText: /personal/i })
+        .first()
+      await clickReady(personal)
+      await waitForListReady(page, listReadyOptions)
       await createContactViaFab(page, { fullName, email })
       await selectContactCheckbox(
         page,
@@ -167,7 +181,7 @@ test.describe('Desktop contacts select and groups', () => {
         .locator('.dropdown .item, .dropdown_content .item')
         .filter({ hasText: groupName })
         .first()
-      await expect(groupOpt).toBeVisible({ timeout: 15000 })
+      await expect(groupOpt).toBeVisible({ timeout: T(15000) })
       await clickReady(groupOpt)
       console.log(`  → Assigned ${fullName} → ${groupName}`)
       await attachScreenshot(page, 'contacts-group-assign-01')
@@ -177,7 +191,7 @@ test.describe('Desktop contacts select and groups', () => {
       await openGroupFromDrawer(page, groupName)
       await expect(
         page.getByTestId('contacts-item').filter({ hasText: fullName }).first()
-      ).toBeVisible({ timeout: 30000 })
+      ).toBeVisible({ timeout: T(30000) })
       await attachScreenshot(page, 'contacts-group-assign-02-list')
     })
 
@@ -199,7 +213,7 @@ test.describe('Desktop contacts select and groups', () => {
   })
 
   test('renames a group', async ({ page }) => {
-    test.setTimeout(180000)
+    test.setTimeout(T(180000))
     await loginAsTestUser(page)
     await openContacts(page)
 
@@ -221,13 +235,13 @@ test.describe('Desktop contacts select and groups', () => {
       )
       await clickReady(editBtn)
       await expect(page.getByTestId('contacts-group-edit')).toBeVisible({
-        timeout: 30000,
+        timeout: T(30000),
       })
       await fillContactsField(page, 'contacts-group-edit-name', renamed)
       await clickReady(page.getByTestId('contacts-group-edit-save'))
       await expect(
         page.getByTestId('contacts-group-item').filter({ hasText: renamed })
-      ).toBeVisible({ timeout: 45000 })
+      ).toBeVisible({ timeout: T(45000) })
       console.log(`  → Renamed group: ${groupName} → ${renamed}`)
       await attachScreenshot(page, 'contacts-group-rename-01')
     })
