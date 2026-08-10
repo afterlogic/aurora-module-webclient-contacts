@@ -87,6 +87,14 @@ async function createContactViaFab(page, { fullName, email, name }) {
   }
   await expect(item).toBeVisible({ timeout: T(45000) })
   await waitForListReady(page, listReadyOptions)
+  if (!onPage) {
+    // A left-over search filter breaks any later rename: the app's own
+    // post-save list refresh re-applies it, the renamed contact no longer
+    // matches, and the app deselects it (CContactsView.js changeRouting
+    // fallback) right as the next step starts. Clear it now so nothing
+    // downstream runs under a stale filter.
+    await clearSearchIfActive(page)
+  }
 }
 
 async function openContactByName(page, fullName) {
@@ -118,6 +126,21 @@ async function openContactByName(page, fullName) {
   })
 }
 
+/**
+ * A prior searchContacts() call (e.g. the fallback in createContactViaFab /
+ * openContactByName) can leave the search box filled. While a search is
+ * active, the app shows a "no results" node with no data-test-id instead of
+ * contacts-empty, so waitForListReady's emptyTestId never matches and the
+ * poll hangs until timeout. Clear it before relying on contacts-empty.
+ */
+async function clearSearchIfActive(page) {
+  const input = page.getByTestId('contacts-search-input')
+  const value = await input.inputValue().catch(() => '')
+  if (value !== '') {
+    await searchContacts(page, '')
+  }
+}
+
 async function deleteOpenedContact(page, fullName) {
   await clickReady(page.getByTestId('contacts-menu-delete'))
   // Desktop may delete without ConfirmPopup.
@@ -125,6 +148,7 @@ async function deleteOpenedContact(page, fullName) {
   await expect(page.getByTestId('contacts-list')).toBeVisible({
     timeout: T(30000),
   })
+  await clearSearchIfActive(page)
   await waitForListReady(page, listReadyOptions)
   await expect(
     page.getByTestId('contacts-item').filter({ hasText: fullName })
@@ -171,6 +195,7 @@ module.exports = {
   createContact,
   createContactViaFab,
   openContactByName,
+  clearSearchIfActive,
   deleteOpenedContact,
   selectContactCheckbox,
   createGroupViaFab,

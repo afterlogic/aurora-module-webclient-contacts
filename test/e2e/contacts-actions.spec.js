@@ -5,7 +5,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
 ))
 const { test, expect } = require('@playwright/test')
 const { T } = sharedHelper('timeouts')
-const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
+const { gotoLoggedIn, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
   openContacts,
@@ -23,7 +23,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('shows storages in sidebar and switches storage', async ({ page }) => {
     test.setTimeout(T(120000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     await step('Expect contacts storages in sidebar', async () => {
@@ -64,7 +64,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('search filters contacts list', async ({ page }) => {
     test.setTimeout(T(120000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const first = page.getByTestId('contacts-item').first()
@@ -104,7 +104,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('creates a contact via FAB', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -127,7 +127,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('edits a contact name', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -137,6 +137,10 @@ test.describe('Desktop contacts actions', () => {
 
     await step('Create contact to edit', async () => {
       await createContactViaFab(page, { fullName, email })
+    })
+
+    await step('Select contact in list', async () => {
+      await openContactByName(page, fullName)
     })
 
     await step('Open edit and rename', async () => {
@@ -164,7 +168,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('deletes a contact', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -173,6 +177,10 @@ test.describe('Desktop contacts actions', () => {
 
     await step('Create contact to delete', async () => {
       await createContactViaFab(page, { fullName, email })
+    })
+
+    await step('Select contact in list', async () => {
+      await openContactByName(page, fullName)
     })
 
     await step('Delete contact via toolbar', async () => {
@@ -184,7 +192,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('creates and deletes a group', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const groupName = `E2E Group ${Date.now()}`
@@ -228,7 +236,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('opens compose from contact email action', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -265,7 +273,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('shares contact then unshares from Shared storage', async ({ page }) => {
     test.setTimeout(T(240000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -334,7 +342,7 @@ test.describe('Desktop contacts actions', () => {
 
   test('find in mail from contact menu', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()

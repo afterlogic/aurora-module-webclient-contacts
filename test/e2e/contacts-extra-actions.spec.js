@@ -5,7 +5,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
 ))
 const { test, expect } = require('@playwright/test')
 const { T } = sharedHelper('timeouts')
-const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
+const { gotoLoggedIn, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
   openContacts,
@@ -24,7 +24,7 @@ test.describe('Desktop contacts team and send', () => {
     page,
   }) => {
     test.setTimeout(T(120000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     await step('Select Team storage from sidebar', async () => {
@@ -65,7 +65,7 @@ test.describe('Desktop contacts team and send', () => {
 
   test('Send / compose from contact email when available', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()

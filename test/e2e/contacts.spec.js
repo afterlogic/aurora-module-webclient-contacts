@@ -5,7 +5,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
 ))
 const { test, expect } = require('@playwright/test')
 const { T } = sharedHelper('timeouts')
-const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
+const { gotoLoggedIn, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { waitForListReady, clickReady } = sharedHelper('ready')
 const {
   openContacts,
@@ -20,7 +20,7 @@ test.describe('Desktop contacts', () => {
   test('opens first contact from the list', async ({ page }) => {
     test.setTimeout(T(120000))
 
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
     await attachScreenshot(page, 'contacts-01-list')
 
@@ -73,7 +73,7 @@ test.describe('Desktop contacts', () => {
     const name = `E2E Contact ${stamp}`
     const email = `e2e.contact.${stamp}@example.com`
 
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
     await attachScreenshot(page, 'contacts-create-01-list')
 

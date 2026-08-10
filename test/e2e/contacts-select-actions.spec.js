@@ -5,7 +5,7 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
 ))
 const { test, expect } = require('@playwright/test')
 const { T } = sharedHelper('timeouts')
-const { loginAsTestUser, step, attachScreenshot, hasCredentials } = sharedHelper('login')
+const { gotoLoggedIn, step, attachScreenshot, hasCredentials } = sharedHelper('login')
 const { clickReady, waitForListReady } = sharedHelper('ready')
 const {
   openContacts,
@@ -31,7 +31,7 @@ test.describe('Desktop contacts select and groups', () => {
 
   test('multi-select bulk deletes contacts', async ({ page }) => {
     test.setTimeout(T(240000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -77,7 +77,7 @@ test.describe('Desktop contacts select and groups', () => {
 
   test('multi-select opens compose to selected contacts', async ({ page }) => {
     test.setTimeout(T(240000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -135,7 +135,7 @@ test.describe('Desktop contacts select and groups', () => {
 
   test('assigns contact to group via toolbar', async ({ page }) => {
     test.setTimeout(T(300000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
@@ -214,7 +214,7 @@ test.describe('Desktop contacts select and groups', () => {
 
   test('renames a group', async ({ page }) => {
     test.setTimeout(T(180000))
-    await loginAsTestUser(page)
+    await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
