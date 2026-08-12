@@ -5,8 +5,8 @@ const { sharedHelper, moduleHelper, fixturePath } = require(path.join(
 ))
 const { test, expect } = require('@playwright/test')
 const { T } = sharedHelper('timeouts')
-const { gotoLoggedIn, step, attachScreenshot, hasCredentials } = sharedHelper('login')
-const { clickReady, waitForListReady } = sharedHelper('ready')
+const { gotoLoggedIn, step, attachScreenshot, hasCredentials, getComposeTo, fieldControl } = sharedHelper('login')
+const { clickReady, waitForListReady, clickNav } = sharedHelper('ready')
 const {
   openContacts,
   fillContactsField,
@@ -14,8 +14,17 @@ const {
   createContactViaFab,
   openContactByName,
   deleteOpenedContact,
+  clearContactsSearch,
+  openContactsStorage,
 } = require('./helpers/contacts')
-const { closeComposeWithoutSending, expectComposeOpen } = moduleHelper('MailWebclient', 'mail')
+const {
+  closeComposeWithoutSending,
+  expectComposeOpen,
+  waitForInboxList,
+  fillComposeRecipient,
+  fillComposeBody,
+  sendCompose,
+} = moduleHelper('MailWebclient', 'mail')
 
 
 test.describe('Desktop contacts actions', () => {
@@ -150,9 +159,10 @@ test.describe('Desktop contacts actions', () => {
       })
       await fillContactsField(page, 'contacts-edit-name', renamed)
       await clickReady(page.getByTestId('contacts-edit-save'))
-      await expect(page.getByTestId('contacts-view')).toBeVisible({
-        timeout: T(45000),
-      })
+      // createContactViaFab may leave search for the old name; after rename
+      // that filter empties the list and hides contacts-view.
+      await clearContactsSearch(page)
+      await openContactByName(page, renamed)
       await expect(page.getByTestId('contacts-view-name')).toContainText(
         renamed,
         { timeout: T(15000) }
@@ -299,14 +309,23 @@ test.describe('Desktop contacts actions', () => {
     })
 
     await step('Open Shared storage and unshare', async () => {
-      const shared = page
+      const shared = page.locator(
+        '[data-test-id="contacts-storage-item"][data-storage="shared"]'
+      )
+      const sharedFallback = page
         .getByTestId('contacts-storage-item')
         .filter({ hasText: /shared/i })
         .first()
-      test.skip((await shared.count()) === 0, 'No Shared storage in sidebar')
-      await clickReady(shared)
-      await waitForListReady(page, listReadyOptions)
+      test.skip(
+        (await shared.count()) === 0 && (await sharedFallback.count()) === 0,
+        'No Shared storage in sidebar'
+      )
+      await openContactsStorage(page, 'shared')
+      await clearContactsSearch(page)
       await openContactByName(page, fullName)
+      await expect(page.getByTestId('contacts-view')).toBeVisible({
+        timeout: 30000,
+      })
       const unshare = page.getByTestId('contacts-menu-unshare')
       await expect(unshare).toBeVisible({ timeout: T(10000) })
       await clickReady(unshare)
@@ -316,55 +335,76 @@ test.describe('Desktop contacts actions', () => {
     })
 
     await step('Cleanup: delete from personal storage if still there', async () => {
-      // Not .first() — the sidebar lists "All" before "Personal" in both apps
-      // (GroupsView.html / ContactsGroupsPanel.vue), and Delete is deliberately
-      // hidden while the combined "All" storage is selected (isDeleteVisible
-      // requires selectedStorage === 'personal'/'shared'/a real address book,
-      // never 'all' — same in legacy's CContactsView.js). Picking "All" here
-      // left contacts-menu-delete permanently absent, not just slow to appear.
-      const personal = page
-        .getByTestId('contacts-storage-item')
-        .filter({ hasText: /personal/i })
-        .first()
-      await clickReady(personal)
-      await waitForListReady(page, listReadyOptions)
+      // Not .first() — the sidebar lists "All" before "Personal"; Delete is hidden
+      // while "All" is selected (isDeleteVisible requires personal/shared/address book).
+      await openContactsStorage(page, 'personal')
+      await clearContactsSearch(page)
       const item = page
         .getByTestId('contacts-item')
         .filter({ hasText: fullName })
-      if ((await item.count()) > 0) {
-        await openContactByName(page, fullName)
-        await deleteOpenedContact(page, fullName)
-      } else {
+      if ((await item.count()) === 0) {
         console.log('  → Contact already gone after unshare')
+        return
       }
+      await openContactByName(page, fullName)
+      await expect(page.getByTestId('contacts-view')).toBeVisible({
+        timeout: T(30000),
+      })
+      await expect(page.getByTestId('contacts-menu-delete')).toBeVisible({
+        timeout: T(15000),
+      })
+      await deleteOpenedContact(page, fullName)
     })
   })
 
   test('find in mail from contact menu', async ({ page }) => {
-    test.setTimeout(T(180000))
+    test.setTimeout(T(300000))
     await gotoLoggedIn(page)
     await openContacts(page)
 
     const stamp = Date.now()
     const fullName = `E2E FindMail ${stamp}`
-    const email = `e2e.findmail.${stamp}@example.com`
+    // Real mailbox address — Find in Mail runs `email:<address>` in Inbox; a
+    // fake @example.com contact would always yield an empty search.
+    const email = getComposeTo()
+    const subject = `E2E FindMail ${stamp}`
 
-    await step('Create contact', async () => {
+    await step('Create contact and open card', async () => {
       await createContactViaFab(page, { fullName, email })
+      await openContactByName(page, fullName)
+      await expect(page.getByTestId('contacts-view')).toBeVisible({
+        timeout: T(30000),
+      })
+      await expect(page.getByTestId('contacts-menu-find-in-mail')).toBeVisible({
+        timeout: T(15000),
+      })
     })
 
-    await step('Find in Mail', async () => {
-      const find = page.getByTestId('contacts-menu-find-in-mail')
-      test.skip(
-        (await find.count()) === 0 ||
-          !(await find.isVisible().catch(() => false)),
-        'Find in Mail not available'
-      )
-      await clickReady(find)
+    await step(`Send mail to contact (${email})`, async () => {
+      await clickNav(page, 'nav-mail')
+      await waitForInboxList(page)
+      await clickReady(page.getByTestId('mail-compose-fab'))
+      await expect(page.getByTestId('mail-compose')).toBeVisible({
+        timeout: T(15000),
+      })
+      await fillComposeRecipient(page, email)
+      await fieldControl(page, 'mail-compose-subject').fill(subject)
+      await fillComposeBody(page, `E2E find-in-mail body ${stamp}`)
+      await sendCompose(page)
+      console.log(`  → Sent: "${subject}" → ${email}`)
+    })
+
+    await step('Contact → Find in Mail → message in list', async () => {
+      await openContacts(page)
+      await openContactByName(page, fullName)
+      await clickReady(page.getByTestId('contacts-menu-find-in-mail'))
       await expect(page.getByTestId('mail-message-list')).toBeVisible({
         timeout: T(60000),
       })
-      console.log('  → Navigated to mail search/list')
+      await expect(
+        page.getByTestId('mail-message-item').filter({ hasText: subject }).first()
+      ).toBeVisible({ timeout: T(60000) })
+      console.log('  → Find in Mail shows the sent message')
       await attachScreenshot(page, 'contacts-find-mail-01')
     })
 

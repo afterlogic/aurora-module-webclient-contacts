@@ -29,6 +29,51 @@ async function openContacts(page) {
   })
 }
 
+/**
+ * Switch sidebar storage. Prefer data-storage=…; fall back to legacy hooks/text
+ * for staging templates that are not redeployed yet.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {'all'|'personal'|'shared'|'team'} kind
+ */
+async function openContactsStorage(page, kind) {
+  const byAttr = page.locator(
+    `[data-test-id="contacts-storage-item"][data-storage="${kind}"]`
+  )
+  if ((await byAttr.count()) > 0) {
+    await clickReady(byAttr.first())
+  } else if (kind === 'personal') {
+    const selenium = page.locator('#selenium_contacts_personal_button')
+    if ((await selenium.count()) > 0) {
+      await clickReady(selenium)
+    } else {
+      await clickReady(
+        page
+          .getByTestId('contacts-storage-item')
+          .filter({ hasText: /personal|личные|personal address/i })
+          .first()
+      )
+    }
+  } else {
+    const labels = {
+      all: /all|все/i,
+      shared: /shared|общие|shared with all/i,
+      team: /team|команд/i,
+    }
+    await clickReady(
+      page
+        .getByTestId('contacts-storage-item')
+        .filter({ hasText: labels[kind] || new RegExp(kind, 'i') })
+        .first()
+    )
+  }
+  await expect(page.getByTestId('contacts-list')).toBeVisible({
+    timeout: 30000,
+  })
+  await waitForListReady(page, listReadyOptions)
+}
+
+
 async function fillContactsField(page, testId, value) {
   const input = fieldControl(page, testId)
   await expect(input).toBeVisible({ timeout: T(15000) })
@@ -45,6 +90,22 @@ async function searchContacts(page, query) {
   await input.press('Enter')
   await waitForListReady(page, listReadyOptions)
 }
+
+/** Clear list search so rename/create do not leave a stale filter. */
+async function clearContactsSearch(page) {
+  const input = page.getByTestId('contacts-search-input')
+  if ((await input.count()) === 0) {
+    return
+  }
+  const value = await input.inputValue().catch(() => '')
+  if (!value) {
+    return
+  }
+  await input.clear()
+  await input.press('Enter')
+  await waitForListReady(page, listReadyOptions)
+}
+
 
 /**
  * Desktop: contacts-create-fab opens edit form directly (no create-contact menu).
@@ -160,6 +221,22 @@ async function selectContactCheckbox(page, item) {
   await clickReady(checkbox)
 }
 
+/** Toolbar "New message" when multiple contacts are checked (desktop .item.new_message). */
+async function clickMultiSelectCompose(page) {
+  const byTestId = page.getByTestId('contacts-select-email')
+  if (
+    (await byTestId.count()) > 0 &&
+    (await byTestId.isVisible().catch(() => false))
+  ) {
+    await clickReady(byTestId)
+    return
+  }
+  // Staging may lag template deploy — fall back to Knockout class hook.
+  const legacy = page.locator('.toolbar .item.new_message').first()
+  await expect(legacy).toBeVisible({ timeout: T(15000) })
+  await clickReady(legacy)
+}
+
 async function createGroupViaFab(page, groupName) {
   await clickReady(page.getByTestId('contacts-create-group'))
   await expect(page.getByTestId('contacts-group-edit')).toBeVisible({
@@ -190,14 +267,17 @@ module.exports = {
   listReadyOptions,
   clickNav,
   openContacts,
+  openContactsStorage,
   fillContactsField,
   searchContacts,
+  clearContactsSearch,
   createContact,
   createContactViaFab,
   openContactByName,
   clearSearchIfActive,
   deleteOpenedContact,
   selectContactCheckbox,
+  clickMultiSelectCompose,
   createGroupViaFab,
   openGroupFromDrawer,
   confirmOkIfVisible,

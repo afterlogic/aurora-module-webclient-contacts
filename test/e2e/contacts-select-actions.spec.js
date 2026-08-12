@@ -14,6 +14,7 @@ const {
   openContactByName,
   deleteOpenedContact,
   selectContactCheckbox,
+  clickMultiSelectCompose,
   createGroupViaFab,
   openGroupFromDrawer,
   fillContactsField,
@@ -94,7 +95,7 @@ test.describe('Desktop contacts select and groups', () => {
       await searchContacts(page, stamp.toString())
     })
 
-    await step('Select both → look for mail action', async () => {
+    await step('Select both contacts', async () => {
       await selectContactCheckbox(
         page,
         page.getByTestId('contacts-item').filter({ hasText: nameA }).first()
@@ -103,14 +104,11 @@ test.describe('Desktop contacts select and groups', () => {
         page,
         page.getByTestId('contacts-item').filter({ hasText: nameB }).first()
       )
+      await attachScreenshot(page, 'contacts-select-compose-00-checked')
+    })
 
-      const sendBtn = page.getByTestId('contacts-select-email')
-      test.skip(
-        (await sendBtn.count()) === 0 ||
-          !(await sendBtn.isVisible().catch(() => false)),
-        'Multi-select email/compose toolbar action not available on desktop'
-      )
-      await clickReady(sendBtn)
+    await step('Toolbar → New message → compose', async () => {
+      await clickMultiSelectCompose(page)
       await expectComposeOpen(page)
       await attachScreenshot(page, 'contacts-select-compose-01')
     })

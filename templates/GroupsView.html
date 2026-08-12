@@ -1,7 +1,7 @@
 <div class="panel_center" data-bind="customScrollbar: {x: false}">
 	<div class="scroll-inner">
 		<div class="items_list">
-			<div class="item canSelect" data-test-id="contacts-storage-item" data-bind="visible: showAllContacts,
+			<div class="item canSelect" data-test-id="contacts-storage-item" data-storage="all" data-bind="visible: showAllContacts,
 					css: {'selected': 'all' === selectedStorage()},
 					click: $parent.gotoContactList">
 				<span class="title" data-bind="click: function () { changeGroupType('all'); }">
@@ -12,7 +12,7 @@
 				</span>
 			</div>
 			
-			<div class="item canSelect" data-test-id="contacts-storage-item" data-bind="visible: showPersonalContacts, 
+			<div class="item canSelect" data-test-id="contacts-storage-item" data-storage="personal" data-bind="visible: showPersonalContacts, 
 					css: {'selected': 'personal' === selectedStorage()},
 					click: $parent.gotoContactList">
 				<span class="title" id="selenium_contacts_personal_button" data-bind="
@@ -31,7 +31,7 @@
 				</span>
 			</div>
 
-			<div class="item canSelect" data-test-id="contacts-storage-item" data-bind="visible: showSharedToAllContacts, 
+			<div class="item canSelect" data-test-id="contacts-storage-item" data-storage="shared" data-bind="visible: showSharedToAllContacts, 
 					css: {'selected': 'shared' === selectedStorage()},
 					click: $parent.gotoContactList">
 				<span class="title" data-bind="
@@ -45,7 +45,7 @@
 				</span>
 			</div>
 
-			<div class="item canSelect" data-test-id="contacts-storage-item" data-bind="visible: showTeamContacts, 
+			<div class="item canSelect" data-test-id="contacts-storage-item" data-storage="team" data-bind="visible: showTeamContacts, 
 					css: {'selected': isTeamStorageSelected},
 					click: $parent.gotoContactList">
 				<span class="title" data-bind="click: function () { changeGroupType('team'); }, css: {'recivedAnim': recivedAnimTeam()}">
