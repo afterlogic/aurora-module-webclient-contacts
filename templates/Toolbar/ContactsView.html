@@ -22,16 +22,16 @@
 
 		<!-- ko template: {name: '%ModuleName%_Toolbar_SortButtonView', if: bSortEnabled,} --><!-- /ko -->
 		
-		<span class="item control" data-bind="visible: visibleImportExport() && isImportAllowed(), dropdown: {control: false}">
+		<span class="item control" data-test-id="contacts-import-export" data-bind="visible: visibleImportExport() && isImportAllowed(), dropdown: {control: false}">
 			<span class="icon arrow"></span>
 			<span class="dropdown">
 				<span class="dropdown_helper">
 					<span class="dropdown_arrow"><span></span></span>
 					<span class="dropdown_content">
 						<!-- ko foreach: aExportData -->
-						<span class="item export" data-bind="text: text, command: command"></span>
+						<span class="item export" data-test-id="contacts-export-item" data-bind="text: text, command: command"></span>
 						<!-- /ko -->
-						<span class="item import" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_IMPORT'}, command: importCommand, visible: isImportAllowed"></span>
+						<span class="item import" data-test-id="contacts-import" data-bind="i18n: {'key': 'COREWEBCLIENT/ACTION_IMPORT'}, command: importCommand, visible: isImportAllowed"></span>
 					</span>
 				</span>
 			</span>

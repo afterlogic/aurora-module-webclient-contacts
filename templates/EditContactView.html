@@ -30,13 +30,13 @@
 					<span class="label">
 						<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_PHONE'}"></span>:
 					</span>
-					<input class="value input" type="text" data-bind="value: phone, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" />
+					<input class="value input" type="text" data-test-id="contacts-edit-phone" data-bind="value: phone, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" />
 				</div>
 				<div class="row">
 					<span class="label">
 						<span class="text" data-bind="i18n: {'key': '%MODULENAME%/LABEL_ADDRESS'}"></span>:
 					</span>
-					<input class="value input" type="text" data-bind="value: address, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" />
+					<input class="value input" type="text" data-test-id="contacts-edit-address" data-bind="value: address, valueUpdate: 'afterkeydown', onEnter: function () { $root.saveCommand($data); }" />
 				</div>
 				<div class="row">
 					<span class="label">
