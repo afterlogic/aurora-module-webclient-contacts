@@ -414,4 +414,51 @@ test.describe('Desktop contacts actions', () => {
       await deleteOpenedContact(page, fullName)
     })
   })
+
+  test.describe('Extra fields', () => {
+    test('saves phone and address extra fields and reopens them', async ({
+      page,
+    }) => {
+      test.setTimeout(T(180000))
+      await gotoLoggedIn(page)
+      await openContacts(page)
+
+      const stamp = Date.now()
+      const fullName = `E2E Extra ${stamp}`
+      const email = `e2e.extra.${stamp}@example.com`
+      const phone = `+1555${String(stamp).slice(-7)}`
+      const address = `E2E Street ${stamp}`
+
+      await step('Create contact', async () => {
+        await createContactViaFab(page, { fullName, email })
+        await openContactByName(page, fullName)
+      })
+
+      await step('Edit phone and address', async () => {
+        await clickReady(page.getByTestId('contacts-menu-edit'))
+        await expect(page.getByTestId('contacts-edit')).toBeVisible({
+          timeout: T(30000),
+        })
+        await fillContactsField(page, 'contacts-edit-phone', phone)
+        await fillContactsField(page, 'contacts-edit-address', address)
+        await clickReady(page.getByTestId('contacts-edit-save'))
+        await clearContactsSearch(page)
+        await openContactByName(page, fullName)
+        await expect(page.getByTestId('contacts-view-mobile')).toContainText(
+          phone,
+          { timeout: T(20000) }
+        )
+        await expect(page.getByTestId('contacts-view-address')).toContainText(
+          address,
+          { timeout: T(20000) }
+        )
+        console.log(`  → Phone/address saved for ${fullName}`)
+        await attachScreenshot(page, 'contacts-extra-fields-01')
+      })
+
+      await step('Cleanup: delete contact', async () => {
+        await deleteOpenedContact(page, fullName)
+      })
+    })
+  })
 })

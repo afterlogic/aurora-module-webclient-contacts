@@ -14,10 +14,14 @@ npm run test:e2e-desktop -- --setup "ContactsWebclient Chrome"
 Shared helpers: `modules/CoreWebclient/test/e2e/helpers/` (`AURORA_E2E_ROOT`).
 Domain helpers: `./helpers/` in this folder.
 
-## P1 specs (`contacts-p1.spec.js`)
+Filter Playwright UI / CLI by **file name** or nested `test.describe`.
 
-- import `.vcf` → contact in list
-- export contacts (download)
-- save phone + address on simple edit form, reopen card
+| File | What it covers |
+|------|----------------|
+| `contacts.spec.js` | Open first contact, list + create |
+| `contacts-actions.spec.js` | Storages, search, CRUD, groups, compose, share, find in mail, extra fields |
+| `contacts-extra-actions.spec.js` | Team storage, Send from contact |
+| `contacts-select-actions.spec.js` | Multi-select delete/compose, assign to group, rename group |
+| `contacts-import-export.spec.js` | Import `.vcf`, export download |
 
 Stand gates: Import/Export hidden when the stand disables formats.
