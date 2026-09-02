@@ -23,5 +23,6 @@ Filter Playwright UI / CLI by **file name** or nested `test.describe`.
 | `contacts-extra-actions.spec.js` | Team storage, Send from contact |
 | `contacts-select-actions.spec.js` | Multi-select delete/compose, assign to group, rename group |
 | `contacts-import-export.spec.js` | Import `.vcf`, export download |
+| `contacts-share-multiuser.spec.js` | PRIMARY shares addressbook → SECONDARY sees contact |
 
-Stand gates: Import/Export hidden when the stand disables formats.
+Stand gates: Import/Export hidden when the stand disables formats; addressbook share requires SharedContacts + SECONDARY on tenant.
