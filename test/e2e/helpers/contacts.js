@@ -73,13 +73,42 @@ async function openContactsStorage(page, kind) {
   await waitForListReady(page, listReadyOptions)
 }
 
+/**
+ * Open a shared custom address book by owner email (sidebar label like
+ * "Address Book (owner@example.com)"). Built-in storages (personal/team/…)
+ * are excluded by matching the owner email in the label.
+ */
+async function openSharedAddressBookByOwner(page, ownerEmail) {
+  const emailRe = new RegExp(
+    ownerEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    'i'
+  )
+  const item = page
+    .getByTestId('contacts-storage-item')
+    .filter({ hasText: emailRe })
+    .first()
+  await expect(item).toBeVisible({ timeout: T(60000) })
+  await clickReady(item)
+  await expect(page.getByTestId('contacts-list')).toBeVisible({
+    timeout: T(30000),
+  })
+  await waitForListReady(page, listReadyOptions)
+}
 
 async function fillContactsField(page, testId, value) {
   const input = fieldControl(page, testId)
   await expect(input).toBeVisible({ timeout: T(15000) })
-  // clear + pressSequentially for Knockout value binding
-  await input.clear()
+  // clear + pressSequentially for Knockout valueUpdate: 'afterkeydown'
+  await input.click({ force: true })
+  await input.fill('')
   await input.pressSequentially(String(value), { delay: 15 })
+  // Flush KO value binding via change (window.ko is not exposed by Aurora).
+  await input.evaluate((el, v) => {
+    el.value = v
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+    el.dispatchEvent(new Event('change', { bubbles: true }))
+  }, String(value))
+  await expect(input).toHaveValue(String(value), { timeout: T(5000) })
 }
 
 async function searchContacts(page, query) {
@@ -108,6 +137,69 @@ async function clearContactsSearch(page) {
 
 
 /**
+ * Save the open contact edit form and wait until edit mode closes.
+ * Assert the CreateContact/UpdateContact API response — a PHP fatal or soft
+ * failure leaves the form open with "Save" visible and used to look like a
+ * flaky click on WebKit.
+ */
+async function saveContactEdit(page) {
+  const edit = page.getByTestId('contacts-edit')
+  const saveBtn = edit.getByTestId('contacts-edit-save')
+  const emailInput = edit.getByTestId('contacts-edit-email')
+  await expect(edit).toBeVisible({ timeout: T(15000) })
+  await expect(saveBtn).toBeVisible({ timeout: T(15000) })
+
+  const responsePromise = page.waitForResponse(
+    (res) => {
+      if (res.request().method() !== 'POST') return false
+      const data = res.request().postData() || ''
+      return data.includes('CreateContact') || data.includes('UpdateContact')
+    },
+    { timeout: T(60000) }
+  )
+
+  await clickReady(saveBtn)
+  // If executeSave did not start, Save stays visible — try Enter (onEnter).
+  if (await saveBtn.isVisible().catch(() => false)) {
+    await emailInput.press('Enter')
+  }
+
+  let response
+  try {
+    response = await responsePromise
+  } catch {
+    throw new Error(
+      'Contacts save did not send CreateContact/UpdateContact after Save'
+    )
+  }
+
+  const text = await response.text()
+  const jsonStart = text.indexOf('{')
+  if (jsonStart < 0) {
+    throw new Error(
+      `Contacts save returned non-JSON (likely PHP fatal): ${text.slice(0, 300)}`
+    )
+  }
+  let data
+  try {
+    data = JSON.parse(text.slice(jsonStart))
+  } catch {
+    throw new Error(
+      `Contacts save returned invalid JSON: ${text.slice(jsonStart, jsonStart + 300)}`
+    )
+  }
+  if (!data.Result) {
+    throw new Error(
+      `Contacts save API failed: ErrorCode=${data.ErrorCode ?? 'n/a'} ${
+        data.ErrorMessage || ''
+      }`.trim()
+    )
+  }
+
+  await expect(edit).toBeHidden({ timeout: T(30000) })
+}
+
+/**
  * Desktop: contacts-create-fab opens edit form directly (no create-contact menu).
  */
 async function createContact(page, { name, email }) {
@@ -118,7 +210,7 @@ async function createContact(page, { name, email }) {
     })
     await fillContactsField(page, 'contacts-edit-name', name)
     await fillContactsField(page, 'contacts-edit-email', email)
-    await clickReady(page.getByTestId('contacts-edit-save'))
+    await saveContactEdit(page)
     await expect(page.getByTestId('contacts-list')).toBeVisible({
       timeout: T(30000),
     })
@@ -135,7 +227,7 @@ async function createContactViaFab(page, { fullName, email, name }) {
   })
   await fillContactsField(page, 'contacts-edit-name', contactName)
   await fillContactsField(page, 'contacts-edit-email', email)
-  await clickReady(page.getByTestId('contacts-edit-save'))
+  await saveContactEdit(page)
   // List is authoritative — view pane may stay empty after save on desktop.
   // New contact may be off page 1 after many E2E runs → search.
   const item = page
@@ -268,6 +360,7 @@ module.exports = {
   clickNav,
   openContacts,
   openContactsStorage,
+  openSharedAddressBookByOwner,
   fillContactsField,
   searchContacts,
   clearContactsSearch,
