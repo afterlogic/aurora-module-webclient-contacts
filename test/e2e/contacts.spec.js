@@ -10,6 +10,7 @@ const { waitForListReady, clickReady } = sharedHelper('ready')
 const {
   openContacts,
   createContact,
+  findContactItem,
   listReadyOptions,
 } = require('./helpers/contacts')
 
@@ -80,11 +81,7 @@ test.describe('Desktop contacts', () => {
     await createContact(page, { name, email })
 
     await step('Expect new contact in list', async () => {
-      const item = page
-        .getByTestId('contacts-item')
-        .filter({ hasText: name })
-        .first()
-      await expect(item).toBeVisible({ timeout: T(30000) })
+      await findContactItem(page, name)
       console.log(`  → Contact created: ${name}`)
       await attachScreenshot(page, 'contacts-create-02-created')
     })

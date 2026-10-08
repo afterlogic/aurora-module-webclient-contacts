@@ -11,6 +11,7 @@ const {
   openContacts,
   listReadyOptions,
   createContactViaFab,
+  findContactItem,
   openContactByName,
   deleteOpenedContact,
   selectContactCheckbox,
@@ -164,10 +165,7 @@ test.describe('Desktop contacts select and groups', () => {
       await clickReady(personal)
       await waitForListReady(page, listReadyOptions)
       await createContactViaFab(page, { fullName, email })
-      await selectContactCheckbox(
-        page,
-        page.getByTestId('contacts-item').filter({ hasText: fullName }).first()
-      )
+      await selectContactCheckbox(page, await findContactItem(page, fullName))
       const assign = page.getByTestId('contacts-assign-group')
       test.skip(
         (await assign.count()) === 0 ||

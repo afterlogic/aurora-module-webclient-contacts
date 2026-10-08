@@ -204,6 +204,7 @@ async function saveContactEdit(page) {
  */
 async function createContact(page, { name, email }) {
   await step(`Create contact ${name} <${email}>`, async () => {
+    await openContactsStorage(page, 'personal')
     await clickReady(page.getByTestId('contacts-create-fab'))
     await expect(page.getByTestId('contacts-edit')).toBeVisible({
       timeout: T(15000),
@@ -221,6 +222,9 @@ async function createContact(page, { name, email }) {
 /** Mobile-named alias: createContactViaFab({ fullName, email }). */
 async function createContactViaFab(page, { fullName, email, name }) {
   const contactName = fullName || name
+  // CreateContact is rejected (ErrorCode 103) when the active view is a
+  // storage that cannot own new contacts (Team, a read-only shared book).
+  await openContactsStorage(page, 'personal')
   await clickReady(page.getByTestId('contacts-create-fab'))
   await expect(page.getByTestId('contacts-edit')).toBeVisible({
     timeout: T(30000),
@@ -248,6 +252,23 @@ async function createContactViaFab(page, { fullName, email, name }) {
     // downstream runs under a stale filter.
     await clearSearchIfActive(page)
   }
+}
+
+/**
+ * Item for a contact that may sit beyond the first list page on a stand with
+ * many leftover E2E contacts: search for it when it is not on the page.
+ */
+async function findContactItem(page, fullName) {
+  const item = page
+    .getByTestId('contacts-item')
+    .filter({ hasText: fullName })
+    .first()
+  const onPage = await item.isVisible({ timeout: 5000 }).catch(() => false)
+  if (!onPage) {
+    await searchContacts(page, fullName)
+  }
+  await expect(item).toBeVisible({ timeout: T(45000) })
+  return item
 }
 
 async function openContactByName(page, fullName) {
@@ -366,6 +387,7 @@ module.exports = {
   clearContactsSearch,
   createContact,
   createContactViaFab,
+  findContactItem,
   openContactByName,
   clearSearchIfActive,
   deleteOpenedContact,

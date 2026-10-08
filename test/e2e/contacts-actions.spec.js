@@ -12,6 +12,7 @@ const {
   fillContactsField,
   listReadyOptions,
   createContactViaFab,
+  findContactItem,
   openContactByName,
   deleteOpenedContact,
   clearContactsSearch,
@@ -127,9 +128,7 @@ test.describe('Desktop contacts actions', () => {
     })
 
     await step('Find new contact in list', async () => {
-      await expect(
-        page.getByTestId('contacts-item').filter({ hasText: fullName }).first()
-      ).toBeVisible({ timeout: T(30000) })
+      await findContactItem(page, fullName)
       await attachScreenshot(page, 'contacts-create-03-list')
     })
   })
