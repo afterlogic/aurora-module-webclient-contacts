@@ -233,18 +233,9 @@ async function createContactViaFab(page, { fullName, email, name }) {
   await fillContactsField(page, 'contacts-edit-email', email)
   await saveContactEdit(page)
   // List is authoritative — view pane may stay empty after save on desktop.
-  // New contact may be off page 1 after many E2E runs → search.
-  const item = page
-    .getByTestId('contacts-item')
-    .filter({ hasText: contactName })
-    .first()
-  const onPage = await item.isVisible({ timeout: 5000 }).catch(() => false)
-  if (!onPage) {
-    await searchContacts(page, contactName)
-  }
-  await expect(item).toBeVisible({ timeout: T(45000) })
+  const { searched } = await revealContact(page, contactName)
   await waitForListReady(page, listReadyOptions)
-  if (!onPage) {
+  if (searched) {
     // A left-over search filter breaks any later rename: the app's own
     // post-save list refresh re-applies it, the renamed contact no longer
     // matches, and the app deselects it (CContactsView.js changeRouting
@@ -255,36 +246,44 @@ async function createContactViaFab(page, { fullName, email, name }) {
 }
 
 /**
- * Item for a contact that may sit beyond the first list page on a stand with
- * many leftover E2E contacts: search for it when it is not on the page.
+ * Make a contact visible in the list and return its item. It may sit beyond the
+ * first page on a stand with many leftover E2E contacts, so search for it.
+ *
+ * Two races to avoid: isVisible() does not wait (its timeout option is ignored),
+ * so the check right after a save runs before the app's own post-save list
+ * refresh; and that refresh can land after the search response and replace the
+ * filtered list with the unfiltered first page. Let the list settle first, and
+ * repeat the search when the contact still is not there.
  */
-async function findContactItem(page, fullName) {
+async function revealContact(page, fullName) {
   const item = page
     .getByTestId('contacts-item')
     .filter({ hasText: fullName })
     .first()
-  const onPage = await item.isVisible({ timeout: 5000 }).catch(() => false)
-  if (!onPage) {
-    await searchContacts(page, fullName)
+  await waitForListReady(page, listReadyOptions)
+  if (await item.isVisible()) {
+    return { item, searched: false }
   }
-  await expect(item).toBeVisible({ timeout: T(45000) })
-  return item
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await searchContacts(page, fullName)
+    const found = await item
+      .waitFor({ state: 'visible', timeout: T(15000) })
+      .then(() => true)
+      .catch(() => false)
+    if (found) {
+      return { item, searched: true }
+    }
+  }
+  await expect(item).toBeVisible({ timeout: T(15000) })
+  return { item, searched: true }
+}
+
+async function findContactItem(page, fullName) {
+  return (await revealContact(page, fullName)).item
 }
 
 async function openContactByName(page, fullName) {
-  let item = page
-    .getByTestId('contacts-item')
-    .filter({ hasText: fullName })
-    .first()
-  const onPage = await item.isVisible({ timeout: 5000 }).catch(() => false)
-  if (!onPage) {
-    await searchContacts(page, fullName)
-    item = page
-      .getByTestId('contacts-item')
-      .filter({ hasText: fullName })
-      .first()
-  }
-  await expect(item).toBeVisible({ timeout: T(30000) })
+  const item = await findContactItem(page, fullName)
   await clickReady(item)
   // contacts-view uses v-show/visibility (element stays in the DOM), so if a
   // prior action already left it visible, toBeVisible() alone can resolve

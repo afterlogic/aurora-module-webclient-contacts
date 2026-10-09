@@ -47,10 +47,14 @@ test.describe('Desktop contacts', () => {
     )
 
     await step('Open first contact', async () => {
-      await clickReady(items.first())
-      await expect(page.getByTestId('contacts-view')).toBeVisible({
-        timeout: T(30000),
-      })
+      // The list can re-render right after it loads and drop the click; retry
+      // the click until the card opens.
+      await expect(async () => {
+        await clickReady(items.first())
+        await expect(page.getByTestId('contacts-view')).toBeVisible({
+          timeout: T(8000),
+        })
+      }).toPass({ timeout: T(45000) })
       await expect(page.getByTestId('contacts-view-name')).toBeVisible({
         timeout: T(15000),
       })
