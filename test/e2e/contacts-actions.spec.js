@@ -17,6 +17,7 @@ const {
   deleteOpenedContact,
   clearContactsSearch,
   openContactsStorage,
+  confirmOkIfVisible,
 } = require('./helpers/contacts')
 const {
   closeComposeWithoutSending,
@@ -231,10 +232,7 @@ test.describe('Desktop contacts actions', () => {
       )
       await clickReady(del)
       // Desktop may delete immediately or via ConfirmPopup.
-      const confirmOk = page.getByTestId('confirm-ok')
-      if (await confirmOk.isVisible({ timeout: T(3000) }).catch(() => false)) {
-        await clickReady(confirmOk)
-      }
+      await confirmOkIfVisible(page, 5000)
       await expect(
         page.getByTestId('contacts-group-item').filter({ hasText: groupName })
       ).toHaveCount(0, { timeout: T(30000) })
