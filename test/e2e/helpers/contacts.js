@@ -19,55 +19,7 @@ const listReadyOptions = {
   timeout: 60000,
 }
 
-const watchedPages = new WeakSet()
-
-/**
- * Log every failed Contacts API answer (method, error code, storage and address
- * book of the request) to the test output. A save or list refresh that fails
- * server-side only shows up as "item not found" otherwise.
- */
-function watchContactsApiErrors(page) {
-  if (watchedPages.has(page)) {
-    return
-  }
-  watchedPages.add(page)
-  page.on('response', async (res) => {
-    try {
-      const req = res.request()
-      if (req.method() !== 'POST' || !/\/Api\/?(\?|$)/.test(res.url())) {
-        return
-      }
-      const params = new URLSearchParams(req.postData() || '')
-      if (params.get('Module') !== 'Contacts') {
-        return
-      }
-      const data = JSON.parse(await res.text())
-      if (!data || !data.ErrorCode) {
-        return
-      }
-      let details = ''
-      try {
-        const p = JSON.parse(params.get('Parameters') || '{}')
-        const c = p.Contact || {}
-        details = ` Storage=${p.Storage ?? c.Storage} AddressBookId=${
-          p.AddressBookId ?? c.AddressBookId
-        } hash=${new URL(page.url()).hash}`
-      } catch {
-        /* parameters are optional context */
-      }
-      console.log(
-        `  ! Contacts API ${params.get('Method')} failed: ErrorCode=${data.ErrorCode} ${
-          data.ErrorMessage || ''
-        }${details}`.trim()
-      )
-    } catch {
-      /* diagnostics must never fail a test */
-    }
-  })
-}
-
 async function openContacts(page) {
-  watchContactsApiErrors(page)
   await step('Open Contacts', async () => {
     await clickNav(page, 'nav-contacts')
     await expect(page.getByTestId('contacts-list')).toBeVisible({
