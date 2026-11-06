@@ -35,6 +35,13 @@ function Callback(oRequest, fResponse, {storage = 'all', addContactGroups = fals
 		}
 	;
 
+	// An empty term is allowed: it lists the most used contacts when the field is clicked
+	if (sTerm.length === 1)
+	{
+		fResponse([]);
+		return;
+	}
+
 	Ajax.send('GetContactSuggestions', oParameters, function (oResponse) {
 		var aList = [];
 		if (oResponse && oResponse.Result && oResponse.Result.List)
